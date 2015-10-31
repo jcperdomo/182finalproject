@@ -1,0 +1,18 @@
+File to include division of tasks, updates on progress, things you need other
+people to do
+
+Overall Todos:
+1- Readup on assigned algorithms
+2- Create abstract classes
+
+Juanky
+
+Monte Carlo Tree Search
+
+Goldberg
+
+Max-n
+
+Nicholas
+
+Paranoid
