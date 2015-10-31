@@ -5,6 +5,9 @@ Overall Todos:
 1- Readup on assigned algorithms
 2- Create abstract classes
 
+Next meetings:
+Wednesday 4th meeting at 7 to discuss representations
+
 Juanky
 
 Monte Carlo Tree Search
