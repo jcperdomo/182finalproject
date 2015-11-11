@@ -114,63 +114,66 @@ def normalize(cards):
     tot = sum(v for v in cards.itervalues())
     return divideAll(cards, tot)
 
-presTot = noCards()
-regTot = noCards()
-assTot = noCards()
-vpTot = noCards()
-vaTot = noCards()
-time1 = time.time()
-numTrials = 1000
-numPlayers = 6
-for trial in xrange(numTrials):
-    hands = dealHands(allCards(), [52/numPlayers]*numPlayers)
-    pres = hands[0]
-    ass = hands[1]
-    vp = hands[2]
-    va = hands[3]
-    swapCards(pres, ass, 2)
-    swapCards(vp, va, 1)
-    presTot = add(presTot, pres)
-    vpTot = add(vpTot, vp)
-    for hand in hands[4:]:
-        regTot = add(regTot, hand)
-    vaTot = add(vaTot, va)
-    assTot = add(assTot, ass)
 
-totTime = round(time.time() - time1, 3)
+if __name__ == '__main__':
 
-print
+    presTot = noCards()
+    regTot = noCards()
+    assTot = noCards()
+    vpTot = noCards()
+    vaTot = noCards()
+    time1 = time.time()
+    numTrials = 1000
+    numPlayers = 6
+    for trial in xrange(numTrials):
+        hands = dealHands(allCards(), [52/numPlayers]*numPlayers)
+        pres = hands[0]
+        ass = hands[1]
+        vp = hands[2]
+        va = hands[3]
+        swapCards(pres, ass, 2)
+        swapCards(vp, va, 1)
+        presTot = add(presTot, pres)
+        vpTot = add(vpTot, vp)
+        for hand in hands[4:]:
+            regTot = add(regTot, hand)
+        vaTot = add(vaTot, va)
+        assTot = add(assTot, ass)
 
-print 'Sampling {} hands for {} players took <= {} seconds'.format(
-    numTrials, numPlayers, totTime
-)
+    totTime = round(time.time() - time1, 3)
 
-print
+    print
 
-presExp = divideAll(presTot, numTrials)
-regExp = divideAll(regTot, (numPlayers-2)*numTrials)
-assExp = divideAll(assTot, numTrials)
-vpExp = divideAll(vpTot, numTrials)
-vaExp = divideAll(vaTot, numTrials)
-df = pd.DataFrame([presExp, vpExp, regExp, vaExp, assExp],
-                  index=['President', 'VP', 'Regular', 'VA', 'Asshole']
-                  ).T
-df.index = cardRepr
-print 'Expected number of each card in each type of hand:'
-print df
+    print 'Sampling {} hands for {} players took <= {} seconds'.format(
+        numTrials, numPlayers, totTime
+    )
 
-print
+    print
 
-presProb = normalize(presTot)
-regProb = normalize(regTot)
-assProb = normalize(assTot)
-vpProb = normalize(vpTot)
-vaProb = normalize(vaTot)
-probdf = pd.DataFrame([presProb, vpProb, regProb, vaProb, assProb],
+    presExp = divideAll(presTot, numTrials)
+    regExp = divideAll(regTot, (numPlayers-2)*numTrials)
+    assExp = divideAll(assTot, numTrials)
+    vpExp = divideAll(vpTot, numTrials)
+    vaExp = divideAll(vaTot, numTrials)
+    df = pd.DataFrame([presExp, vpExp, regExp, vaExp, assExp],
                       index=['President', 'VP', 'Regular', 'VA', 'Asshole']
                       ).T
-probdf.index = cardRepr
-print 'Probability of each card in each type of hand:'
-print probdf
+    df.index = cardRepr
+    print 'Expected number of each card in each type of hand:'
+    print df
 
-print
+    print
+
+    presProb = normalize(presTot)
+    regProb = normalize(regTot)
+    assProb = normalize(assTot)
+    vpProb = normalize(vpTot)
+    vaProb = normalize(vaTot)
+    probdf = pd.DataFrame([presProb, vpProb, regProb, vaProb, assProb],
+                          index=['President', 'VP', 'Regular', 'VA', 'Asshole']
+                          ).T
+    probdf.index = cardRepr
+    print 'Probability of each card in each type of hand:'
+    print probdf
+
+    print
