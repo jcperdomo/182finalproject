@@ -17,29 +17,28 @@ class Game(object):
         the players.
 
         """
-        self.agentFuncs = agentFuncs
-        self.numPlayers = len(agentFuncs)
-    
-    def playGame(self):
-        """Plays through the game, getting an action at each turn for each player.
-        :returns: A ranking of the agent indices from president to asshole.
-
-        """
         deck = cards.allCards()
         hands = cards.dealHands(deck, 52/self.numPlayers)
-        agents = [agentConstructor(i, hand)
+        self.agents = [agentConstructor(i, hand)
                   for i, (agentConstructor,hand) in 
-                  enumerate(zip(self.agentFuncs, hands))]
+                  enumerate(zip(agentFuncs, hands))]
+        self.numPlayers = len(self.agents)
         
         # randomly choose a player with a 3 to start
         # (proportional to how many 3's they have)
         threes = collections.Counter()
         for p, hand in enumerate(hands):
             threes[p] += hand[0]
-        initWhosTurn = np.random.choice(cards.cardDictToList(threes))
-        initCardsPlayed = [cards.noCards() for i in xrange(self.numPlayers)]
-        initialState = state.State(initCardsPlayed, initWhosTurn, None, None)
-        curState = initialState
+        whosTurn = np.random.choice(cards.cardDictToList(threes))
+        cardsPlayed = [cards.noCards() for i in xrange(self.numPlayers)]
+        self.initialState = state.State(cardsPlayed, whosTurn, None, None)
+    
+    def playGame(self):
+        """Plays through the game, getting an action at each turn for each player.
+        :returns: A ranking of the agent indices from president to asshole.
+
+        """
+        curState = self.initialState
         results = []
 
         # play out the game
@@ -47,20 +46,16 @@ class Game(object):
 
             # figure out whose turn it is
             whosTurn = curState.whosTurn
-            agentToMove = agents[whosTurn]
-            
-            # if this player played the last card, clear the deck
-
+            agentToMove = self.agents[whosTurn]
             # get the move - ask agent for move
             (numCards, whichCard) = agentToMove.makeMove(curState)
             # make the move - take cards out of hand, update the state
             agentToMove.hand[whichCard] -= numCards
             # print state for inspection (DEBUGGING)
-            print curState.topCard, whosTurn, numCards, whichCard, map(lambda a: a.numCardsLeft(), agents)
+            print curState.topCard, whosTurn, numCards, whichCard, map(lambda a: a.numCardsLeft(), self.agents)
             time.sleep(.2)
             # END DEBUGGING
             curState = curState.getChild((numCards, whichCard))
-
 
             # update results
             for p in curState.getDonePlayers():
