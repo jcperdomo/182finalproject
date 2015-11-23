@@ -10,28 +10,32 @@ class Game(object):
     """The class for the actual game, which is responsible for getting moves
     from players and organizing play."""
 
-    def __init__(self, agentFuncs):
+    def __init__(self, agentFuncs, hands=None, whosTurn=None):
         """Initializes the game with the agents listed as the players.
 
         :agentFuncs: List of agent constructors that will be used to construct
         the players.
 
         """
-        deck = cards.allCards()
-        hands = cards.dealHands(deck, 52/self.numPlayers)
+        self.numPlayers = len(agentFuncs)
+        if hands is None:
+            deck = cards.allCards()
+            hands = cards.dealHands(deck, 52/self.numPlayers)
+
         self.agents = [agentConstructor(i, hand)
                   for i, (agentConstructor,hand) in 
                   enumerate(zip(agentFuncs, hands))]
-        self.numPlayers = len(self.agents)
         
-        # randomly choose a player with a 3 to start
-        # (proportional to how many 3's they have)
-        threes = collections.Counter()
-        for p, hand in enumerate(hands):
-            threes[p] += hand[0]
-        whosTurn = np.random.choice(cards.cardDictToList(threes))
+        if whosTurn is None:
+            # randomly choose a player with a 3 to start
+            # (proportional to how many 3's they have)
+            threes = collections.Counter()
+            for p, hand in enumerate(hands):
+                threes[p] += hand[0]
+            whosTurn = np.random.choice(cards.cardDictToList(threes))
+
         cardsPlayed = [cards.noCards() for i in xrange(self.numPlayers)]
-        self.initialState = state.State(cardsPlayed, whosTurn, None, None)
+        self.initialState = state.State(cardsPlayed, whosTurn)
     
     def playGame(self):
         """Plays through the game, getting an action at each turn for each player.

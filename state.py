@@ -4,7 +4,8 @@ class State(object):
 
     """Docstring for State. """
 
-    def __init__(self, playedCards, whosTurn, topCard, lastPlayed):
+    def __init__(self, playedCards, whosTurn,
+                 topCard=None, lastPlayed=None, finished=[]):
         """Initialization for State.
 
         :playedCards: list of card count dictionaries representing how many of
@@ -18,6 +19,7 @@ class State(object):
         self.whosTurn = whosTurn
         self.topCard = topCard
         self.lastPlayed = lastPlayed
+        self.finished = finished
 
     def getChild(self, action):
         """Gets the next state given an action.
@@ -31,6 +33,7 @@ class State(object):
         nextWhosTurn = (self.whosTurn + 1) % self.numPlayers
         nextTopCard = self.topCard
         nextLastPlayed = self.lastPlayed
+        nextFinished = self.finished
         # if a real move was made, update next state
         if numCards:
             nextPlayedCards[self.whosTurn][whichCard] += numCards
@@ -40,8 +43,13 @@ class State(object):
         elif nextWhosTurn == nextLastPlayed:
             nextTopCard = None
             nextLastPlayed = None
-        return State(nextPlayedCards, nextWhosTurn,
-                     nextTopCard, nextLastPlayed)
+        # if player ran out of cards at this transition, add to finished list
+        initHandSize = 52 / self.numPlayers
+        if sum(nextPlayedCards[self.whosTurn].itervalues()) == initHandSize:
+            nextFinished.append(self.whosTurn)
+        nextState = State(nextPlayedCards, nextWhosTurn,
+                          nextTopCard, nextLastPlayed, nextFinished)
+        return nextState
 
     def isFinalState(self):
         """Returns True if all but the final player has finished, otherwise False.
