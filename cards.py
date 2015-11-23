@@ -1,3 +1,4 @@
+import collections
 import numpy as np
 import pandas as pd
 import time
@@ -36,10 +37,13 @@ def dealHands(cardsLeft, handSizes):
 
     :cardsLeft: A dictionary representing how many of each card there is yet to
     be played.
-    :handSizes: A list of length numPlayers with the hand sizes for each player.
+    :handSizes: An int for the hand size of all players or a list of length
+    numPlayers with the hand sizes for each player.
     :returns: A list of hand dictionaries.
 
     """
+    if not isinstance(handSizes, collections.Iterable):
+        handSizes = [handSizes]*int(52./handSizes)
     allCards = cardDictToList(cardsLeft)
     np.random.shuffle(allCards)
     cumHandSizes = np.cumsum(handSizes)[:-1]

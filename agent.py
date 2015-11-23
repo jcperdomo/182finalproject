@@ -21,6 +21,13 @@ class Agent(object):
         actions = self.getActions(state)
         return actions[-1]
 
+    def numCardsLeft(self):
+        """Returns number of cards remaining in the hand.
+        :returns: Number of cards left to be played.
+
+        """
+        return sum(self.hand.itervalues())
+
     def getActions(self, state):
         """Returns list of all legal actions given a state.
 
@@ -29,7 +36,10 @@ class Agent(object):
         :returns: A list of (numCards, whichCard) actions.
 
         """
-        legalActions = []
+        # corner case: player is out of cards, so return a pass
+        if self.numCardsLeft() == 0:
+            return [(0, 0)]
+
         allPossiblePlays = [
             (numCards, card)
             for card, num in self.hand.iteritems()

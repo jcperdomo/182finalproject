@@ -40,3 +40,24 @@ class State(object):
             nextLastPlayed = None
         return State(nextPlayedCards, nextWhosTurn,
                      nextTopCard, nextLastPlayed)
+
+    def isFinalState(self):
+        """Returns True if all but the final player has finished, otherwise False.
+        :returns: True if the game is over, False otherwise.
+        """
+        numDone = len(self.getDonePlayers())
+        # if all but one have used all their cards, the game is over
+        if numDone == self.numPlayers - 1:
+            return True
+        else:
+            return False
+
+    def getDonePlayers(self):
+        """Returns list of player indices who have played all their cards.
+        :returns: List of booleans corresponding to whether the player has
+        cards remaining.
+        """
+        initHandSize = 52 / self.numPlayers
+        cardsUsed = [sum(played.values()) == initHandSize
+                     for played in self.playedCards]
+        return [cu == initHandSize for cu in cardsUsed]
