@@ -10,8 +10,7 @@ class Game(object):
     from players and organizing play."""
 
     def __init__(self, agentFuncs):
-        """Initializes the game with the agents listed as the players. Supports
-        games of sizes 4-6 (for now).
+        """Initializes the game with the agents listed as the players.
 
         :agentFuncs: List of agent constructors that will be used to construct
         the players.
@@ -26,7 +25,7 @@ class Game(object):
 
         """
         deck = cards.allCards()
-        hands = cards.dealHands(deck, 52/4)
+        hands = cards.dealHands(deck, 52/self.numPlayers)
         agents = [agentConstructor(hand)
                   for agentConstructor, hand in zip(self.agentFuncs, hands)]
         
@@ -52,10 +51,12 @@ class Game(object):
 
             # get the move - ask agent for move
             (numCards, whichCard) = agentToMove.makeMove(curState)
-            print curState.topCard, curState.lastPlayed, whosTurn, numCards, whichCard, min(map(len, curState.playedCards))
             # make the move - take cards out of hand, update the state
             agentToMove.hand[whichCard] -= numCards
             curState = curState.getChild((numCards, whichCard))
+
+            # print state for inspection
+            print curState.topCard, whosTurn, numCards, whichCard, map(lambda a: a.numCardsLeft(), agents)
 
             # update results
             for p in curState.getDonePlayers():
