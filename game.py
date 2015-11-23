@@ -1,5 +1,6 @@
 import collections
 import numpy as np
+import time
 
 import cards
 import state
@@ -26,8 +27,9 @@ class Game(object):
         """
         deck = cards.allCards()
         hands = cards.dealHands(deck, 52/self.numPlayers)
-        agents = [agentConstructor(hand)
-                  for agentConstructor, hand in zip(self.agentFuncs, hands)]
+        agents = [agentConstructor(i, hand)
+                  for i, (agentConstructor,hand) in 
+                  enumerate(zip(self.agentFuncs, hands))]
         
         # randomly choose a player with a 3 to start
         # (proportional to how many 3's they have)
@@ -53,10 +55,12 @@ class Game(object):
             (numCards, whichCard) = agentToMove.makeMove(curState)
             # make the move - take cards out of hand, update the state
             agentToMove.hand[whichCard] -= numCards
+            # print state for inspection (DEBUGGING)
+            print curState.topCard, whosTurn, numCards, whichCard, map(lambda a: a.numCardsLeft(), agents)
+            time.sleep(.2)
+            # END DEBUGGING
             curState = curState.getChild((numCards, whichCard))
 
-            # print state for inspection
-            print curState.topCard, whosTurn, numCards, whichCard, map(lambda a: a.numCardsLeft(), agents)
 
             # update results
             for p in curState.getDonePlayers():

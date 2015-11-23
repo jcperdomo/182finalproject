@@ -5,8 +5,9 @@ class Agent(object):
 
     """The Agent base class to be overridden with each algorithm."""
 
-    def __init__(self, hand):
+    def __init__(self, idx, hand):
         """Initializes an agent with its starting hand."""
+        self.idx = idx
         self.hand = hand
 
     @abc.abstractmethod
