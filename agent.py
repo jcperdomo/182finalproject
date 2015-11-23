@@ -18,7 +18,7 @@ class Agent(object):
         action (i.e., a pass).
 
         """
-        actions = self.getActions(state)
+        actions = self.getAllActions(state)
         return actions[-1]
 
     def numCardsLeft(self):
@@ -28,7 +28,7 @@ class Agent(object):
         """
         return sum(self.hand.itervalues())
 
-    def getActions(self, state):
+    def getAllActions(self, state):
         """Returns list of all legal actions given a state.
 
         :state: The state from which we are considering actions. Must have
@@ -45,7 +45,6 @@ class Agent(object):
             for card, num in self.hand.iteritems()
             for numCards in xrange(1, num+1)
         ]
-        print allPossiblePlays
         filterFunc = lambda (n,c): (n == state.topCard[0] and
                                     c > state.topCard[1])
         if state.topCard is None:

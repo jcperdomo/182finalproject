@@ -26,15 +26,17 @@ class State(object):
         :returns: The next state.
         """
         numCards, whichCard = action
+        # set defaults
         nextPlayedCards = deepcopy(self.playedCards)
         nextWhosTurn = (self.whosTurn + 1) % self.numPlayers
         nextTopCard = self.topCard
         nextLastPlayed = self.lastPlayed
+        # if a real move was made, update next state
         if numCards:
-            # a real move was made
             nextPlayedCards[self.whosTurn][whichCard] += numCards
             nextTopCard = action
             nextLastPlayed = self.whosTurn
+        # if no move was made and it's gone all the way around, clear deck
         elif nextWhosTurn == nextLastPlayed:
             nextTopCard = None
             nextLastPlayed = None
@@ -54,10 +56,9 @@ class State(object):
 
     def getDonePlayers(self):
         """Returns list of player indices who have played all their cards.
-        :returns: List of booleans corresponding to whether the player has
-        cards remaining.
+        :returns: List of player indices who are out of cards.
         """
         initHandSize = 52 / self.numPlayers
-        cardsUsed = [sum(played.values()) == initHandSize
+        usedAll = [sum(played.values()) == initHandSize
                      for played in self.playedCards]
-        return [cu == initHandSize for cu in cardsUsed]
+        return [i for i, ua in enumerate(usedAll) if ua]
