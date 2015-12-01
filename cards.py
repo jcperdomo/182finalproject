@@ -79,9 +79,14 @@ def diff(cards1, cards2):
     """Removes the cards present in cards2 from cards1.
 
     :cards1: The master dict of card counts.
-    :cards2: The dict of card counts with which to update cards1.
+    :cards2: The dict of card counts with which to update cards1. Also supports
+    a list of such dicts.
     :returns: The updated dict of card counts.
     """
+    # handles case where cards2 is a list of dicts to subtract from cards1
+    if isinstance(cards2, list):
+        return reduce(diff, cards2, cards1)
+    # otherwise, the basic diff between two dicts
     result = dict(cards1)
     for k in result.iterkeys():
         if k in cards2:
