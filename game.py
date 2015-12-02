@@ -24,7 +24,7 @@ class Game(object):
         :whosTurn: index of agent whose turn it is; if supplied, the game will
         start with this player.
         """
-        self.numPlayers = len(agentFuncs)
+        self.numPlayers = len(agents)
         if hands is None:
             deck = cards.allCards()
             hands = cards.dealHands(deck, 52/self.numPlayers)
