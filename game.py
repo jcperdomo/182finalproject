@@ -36,7 +36,7 @@ class Game(object):
         else:
             self.agents = [agentConstructor(i, hand)
                       for i, (agentConstructor,hand) in 
-                      enumerate(zip(agentFuncs, hands))]
+                      enumerate(zip(agents, hands))]
         
         if whosTurn is None:
             # randomly choose a player with a 3 to start
