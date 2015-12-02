@@ -41,11 +41,11 @@ class Agent(object):
         if self.numCardsLeft() == 0:
             return [(0, 0)]
 
-        allPossiblePlays = [
+        allPossiblePlays = {
             (numCards, card)
             for card, num in self.hand.iteritems()
             for numCards in xrange(1, num+1)
-        ]
+        }
         filterFunc = lambda (n,c): (n == state.topCard[0] and
                                     c > state.topCard[1])
         if state.topCard is None:
