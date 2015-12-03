@@ -116,7 +116,7 @@ class mctsAgent(agent.Agent):
         del otherRemaining[self.idx]
         hands = cards.dealHands(cardsLeft , otherRemaining)
         hands.insert(self.idx, node.hand)
-        agents = [dummyAgent.DummyAgent] * node.numPlayers
+        agents = [dummyAgent.DummyAgent for i in xrange(node.numPlayers)]
         gm = game.Game(agents, hands, node.playedCards, node.whosTurn)
 
         results = gm.playGame()
