@@ -70,7 +70,7 @@ class Game(object):
         maxDepth = float('inf') if maxDepth is None else maxDepth
         while not curState.isFinalState() and curDepth < maxDepth:
             curDepth += 1
-
+            print "ENTERED SIMULATION IN GAME.py"
             # figure out whose turn it is
             whosTurn = curState.whosTurn
             agentToMove = self.agents[whosTurn]
@@ -81,8 +81,9 @@ class Game(object):
             if numCards > 0:
                 agentToMove.hand[whichCard] -= numCards
             # print state for inspection (DEBUGGING)
-            #print curState.topCard, whosTurn, numCards, whichCard, map(lambda a: a.numCardsLeft(), self.agents)
-            #time.sleep(.2)
+            print curState.topCard, whosTurn, numCards, whichCard, map(lambda a: a.numCardsLeft(), self.agents)
+
+            time.sleep(.2)
             # END DEBUGGING
             # update the state
             curState = curState.getChild((numCards, whichCard))
