@@ -32,6 +32,7 @@ class Game(object):
         # if agents is a list of agent objects, set that to self.agents
         if isinstance(agents[0], agent.Agent):
             self.agents = agents
+            print "AGENTS"
         # otherwise, construct the agents from the list of agent constructors
         else:
             self.agents = [agentConstructor(i, hand)
