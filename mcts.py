@@ -107,7 +107,7 @@ class mctsAgent(agent.Agent):
     # given a node, plays out game using the default policy returning a score for the node
     def simulation(self, node):
         # dummy agents to play the remaining games quickly
-        print "Entered simulation"
+        print "Entered simulation in MCTS"
         start = time.time()
         if node.terminal:
             return node.score
@@ -116,9 +116,11 @@ class mctsAgent(agent.Agent):
         del otherRemaining[self.idx]
         hands = cards.dealHands(cardsLeft , otherRemaining)
         hands.insert(self.idx, node.hand)
+        print "MCTS agent hands: ", hands
+        time.sleep(5)
         agents = [dummyAgent.DummyAgent for i in xrange(node.numPlayers)]
         gm = game.Game(agents, hands, node.playedCards, node.whosTurn)
-
+        print  "Exited Game"
         results = gm.playGame()
         end = time.time() - start
         print "time in simulation", end

@@ -70,7 +70,7 @@ class Game(object):
         maxDepth = float('inf') if maxDepth is None else maxDepth
         while not curState.isFinalState() and curDepth < maxDepth:
             curDepth += 1
-
+            print "ENTERED SIMULATION IN GAME.py"
             # figure out whose turn it is
             whosTurn = curState.whosTurn
             agentToMove = self.agents[whosTurn]
