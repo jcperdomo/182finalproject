@@ -107,6 +107,8 @@ class mctsAgent(agent.Agent):
     # given a node, plays out game using the default policy returning a score for the node
     def simulation(self, node):
         # dummy agents to play the remaining games quickly
+        print "Entered simulation"
+        start = time.time()
         if node.terminal:
             return node.score
         cardsLeft = cards.diff(cards.allCards(), [node.playedCards, node.hand])
@@ -116,12 +118,16 @@ class mctsAgent(agent.Agent):
         hands.insert(self.idx, node.hand)
         agents = [dummyAgent.DummyAgent] * node.numPlayers
         gm = game.Game(agents, hands, node.playedCards, node.whosTurn)
+
         results = gm.playGame()
+        end = time.time() - start
+        print "time in simulation", end
         return results.index(self.idx) ** -1
 
 
     # updates all nodes up to the root based on result of simulation
     def backpropagation(self, node, result):
+        print "entered backpropagation"
         node.visits += 1
         node.score += result
         if node.parent == None:
@@ -138,6 +144,7 @@ class mctsAgent(agent.Agent):
                         None, state.topCard, state.lastPlayed, state.finished,
                         None)
         while time.time() < time_start + time_end:
+            print "looped"
             nextNode = self.selection(root)
             result = self.simulation(nextNode)
             self.backpropagation(nextNode, result)
