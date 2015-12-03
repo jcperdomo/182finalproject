@@ -75,3 +75,12 @@ class State(object):
         usedAll = [sum(played.values()) == initHandSize
                      for played in self.playedCards]
         return [i for i, ua in enumerate(usedAll) if ua]
+
+    def heuristic(self):
+        scores = [0] * self.numPlayers
+        for idx, player in enumerate(self.finished):
+            scores[player] += 20 - idx 
+
+        for player, handsize in enumerate(self.numRemaining):
+            scores[player] += 13 - handsize
+        return scores
