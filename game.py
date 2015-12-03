@@ -76,14 +76,9 @@ class Game(object):
             agentToMove = self.agents[whosTurn]
             # get the move - ask agent for move
             (numCards, whichCard) = agentToMove.makeMove(curState)
-            print whosTurn, numCards, cards.cardRepr[whichCard]
             # make the move by taking cards out of hand, if not a pass
             if numCards > 0:
                 agentToMove.hand[whichCard] -= numCards
-            # print state for inspection (DEBUGGING)
-            #print curState.topCard, whosTurn, numCards, whichCard, map(lambda a: a.numCardsLeft(), self.agents)
-            #time.sleep(.2)
-            # END DEBUGGING
             # update the state
             curState = curState.getChild((numCards, whichCard))
 
