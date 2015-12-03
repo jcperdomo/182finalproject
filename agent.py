@@ -1,7 +1,4 @@
-import abc
-
 class Agent(object):
-    __metaclass__ = abc.ABCMeta
 
     """The Agent base class to be overridden with each algorithm."""
 
@@ -10,7 +7,6 @@ class Agent(object):
         self.idx = idx
         self.hand = hand
 
-    #@abc.abstractmethod
     def makeMove(self, state):
         """Returns the action to be made given a state.
 
@@ -19,8 +15,7 @@ class Agent(object):
         action (i.e., a pass).
 
         """
-        actions = self.getAllActions(state)
-        return actions[-1]
+        raise "not yet defined"
 
     def numCardsLeft(self):
         """Returns number of cards remaining in the hand.
