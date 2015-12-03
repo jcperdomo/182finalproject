@@ -129,10 +129,7 @@ def empty(hand):
     :hand: A dictionary of card counts
     :returns: bool, true if hand is empty
     """
-    total = 0
-    for count in hand.itervalues():
-        total += count
-    return total == 0
+    return hand == noCards()
 
 
 

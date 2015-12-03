@@ -35,9 +35,9 @@ class Game(object):
         # otherwise, construct the agents from the list of agent constructors
         else:
             self.agents = [agentConstructor(i, hand)
-                      for i, (agentConstructor,hand) in 
+                      for i, (agentConstructor,hand) in
                       enumerate(zip(agents, hands))]
-        
+
         if whosTurn is None:
             # randomly choose a player with a 3 to start
             # (proportional to how many 3's they have)
@@ -50,7 +50,7 @@ class Game(object):
             cardsPlayed = [cards.noCards() for i in xrange(self.numPlayers)]
 
         self.initialState = state.State(cardsPlayed, whosTurn)
-    
+
     def playGame(self, maxDepth=None, evalFunc=None):
         """Plays through the game, getting an action at each turn for each player.
 
@@ -79,11 +79,11 @@ class Game(object):
             # make the move - take cards out of hand, update the state
             agentToMove.hand[whichCard] -= numCards
             # print state for inspection (DEBUGGING)
-            print curState.topCard, whosTurn, numCards, whichCard, map(lambda a: a.numCardsLeft(), self.agents)
+            #print curState.topCard, whosTurn, numCards, whichCard, map(lambda a: a.numCardsLeft(), self.agents)
             time.sleep(.2)
             # END DEBUGGING
             curState = curState.getChild((numCards, whichCard))
-        
+
         # if whole game is played, return order of agent IDs from president to asshole
         if curState.isFinalState():
             results = list(curState.finished)

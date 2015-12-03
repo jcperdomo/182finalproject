@@ -10,7 +10,7 @@ class Agent(object):
         self.idx = idx
         self.hand = hand
 
-    @abc.abstractmethod
+    #@abc.abstractmethod
     def makeMove(self, state):
         """Returns the action to be made given a state.
 
