@@ -1,4 +1,5 @@
 from copy import deepcopy
+import time
 
 class State(object):
 
@@ -42,7 +43,7 @@ class State(object):
         nextLastPlayed = self.lastPlayed
         nextFinished = self.finished
         # if a real move was made, update next state
-        if numCards:
+        if numCards > 0:
             nextPlayedCards[self.whosTurn][whichCard] += numCards
             nextTopCard = action
             nextLastPlayed = self.whosTurn
@@ -54,7 +55,8 @@ class State(object):
         nextState = State(nextPlayedCards, nextWhosTurn,
                           nextTopCard, nextLastPlayed, nextFinished)
         # if player ran out of cards at this transition, add to finished list
-        if nextState.numRemaining[self.whosTurn] == 0:
+        if (self.numRemaining[self.whosTurn] > 0 and
+                nextState.numRemaining[self.whosTurn] == 0):
             nextState.finished.append(self.whosTurn)
         return nextState
 
@@ -64,7 +66,7 @@ class State(object):
         """
         numDone = len(self.finished)
         # if all but one have used all their cards, the game is over
-        if numDone == self.numPlayers - 1:
+        if numDone >= self.numPlayers - 1:
             return True
         else:
             return False
