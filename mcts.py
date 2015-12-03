@@ -28,7 +28,7 @@ class mctsNode(state.State):
     hand = current hand
 
     """
-    # remove Agent inheritance just use satae
+    # remove Agent inheritance just use state
     def __init__(self, playedCards, whosTurn, hand, idx, lastMove,
                 topCard=None, lastPlayed=None, finished=[], parent = None):
         """
@@ -117,10 +117,9 @@ class mctsAgent(agent.Agent):
         hands = cards.dealHands(cardsLeft , otherRemaining)
         hands.insert(self.idx, node.hand)
         print "MCTS agent hands: ", hands
-        time.sleep(5)
         agents = [dummyAgent.DummyAgent for i in xrange(node.numPlayers)]
-        gm = game.Game(agents, hands, node.playedCards, node.whosTurn)
-        print  "Exited Game"
+        gm = game.Game(agents, hands, node.playedCards, node.whosTurn,
+                       node.topCard, node.lastPlayed, node.finished)
         results = gm.playGame()
         end = time.time() - start
         print "time in simulation", end
