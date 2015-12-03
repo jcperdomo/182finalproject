@@ -13,6 +13,8 @@ class State(object):
         :whosTurn: Index of player whose turn it is.
         :topCard: (numPlayed, whichCard) of the last play (None if empty deck).
         :lastPlayed: Last player who played on this deck (None if empty deck).
+        :finished: list of player indices who have played all their cards in
+        order from president to asshole.
         """
         self.playedCards = playedCards
         self.numPlayers = len(self.playedCards)
@@ -48,19 +50,19 @@ class State(object):
         elif nextWhosTurn == nextLastPlayed:
             nextTopCard = None
             nextLastPlayed = None
-        # if player ran out of cards at this transition, add to finished list
-        initHandSize = 52 / self.numPlayers
-        if sum(nextPlayedCards[self.whosTurn].itervalues()) == initHandSize:
-            nextFinished.append(self.whosTurn)
+        # create next state
         nextState = State(nextPlayedCards, nextWhosTurn,
                           nextTopCard, nextLastPlayed, nextFinished)
+        # if player ran out of cards at this transition, add to finished list
+        if nextState.numRemaining[self.whosTurn] == 0:
+            nextState.finished.append(self.whosTurn)
         return nextState
 
     def isFinalState(self):
         """Returns True if all but the final player has finished, otherwise False.
         :returns: True if the game is over, False otherwise.
         """
-        numDone = len(self.getDonePlayers())
+        numDone = len(self.finished)
         # if all but one have used all their cards, the game is over
         if numDone == self.numPlayers - 1:
             return True
