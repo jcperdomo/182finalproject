@@ -4,7 +4,9 @@ import pandas as pd
 import time
 
 # for human-readable cards
-cardRepr = ['3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A', '2']
+# note: 'P' is a pass
+cardRepr = ['3', '4', '5', '6', '7', '8', '9', '10',
+            'J', 'Q', 'K', 'A', '2', 'P']
 
 # returns full deck of card counts
 allCards = lambda: {card: 4 for card in xrange(13)}
@@ -130,8 +132,6 @@ def empty(hand):
     :returns: bool, true if hand is empty
     """
     return hand == noCards()
-
-
 
 
 if __name__ == '__main__':

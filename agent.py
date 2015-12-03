@@ -1,3 +1,5 @@
+PASS = (0, -1)
+
 class Agent(object):
 
     """The Agent base class to be overridden with each algorithm."""
@@ -6,6 +8,16 @@ class Agent(object):
         """Initializes an agent with its starting hand."""
         self.idx = idx
         self.hand = hand
+
+    def firstMove(self):
+        """Plays all 3's (0's in the card encoding) for the first move of the
+        game.
+        :returns: (numThrees, 0)
+
+        """
+        numThrees = self.hand[0]
+        assert numThrees > 0
+        return (numThrees, 0)
 
     def makeMove(self, state):
         """Returns the action to be made given a state.
@@ -34,7 +46,7 @@ class Agent(object):
         """
         # corner case: player is out of cards, so return a pass
         if self.numCardsLeft() == 0:
-            return [(0, 0)]
+            return [PASS]
 
         allPossiblePlays = {
             (numCards, card)
@@ -46,4 +58,4 @@ class Agent(object):
         if state.topCard is None:
             return allPossiblePlays
         else:
-            return  [(0, 0)] + filter(filterFunc, allPossiblePlays)
+            return  [PASS] + filter(filterFunc, allPossiblePlays)

@@ -1,5 +1,4 @@
-from copy import deepcopy
-import time
+import cards
 
 class State(object):
 
@@ -37,7 +36,7 @@ class State(object):
         """
         numCards, whichCard = action
         # set defaults
-        nextPlayedCards = deepcopy(self.playedCards)
+        nextPlayedCards = list(self.playedCards)
         nextWhosTurn = (self.whosTurn + 1) % self.numPlayers
         nextTopCard = self.topCard
         nextLastPlayed = self.lastPlayed
@@ -70,3 +69,11 @@ class State(object):
             return True
         else:
             return False
+
+    def isInitialState(self):
+        """Returns True if this is the first play of the game, i.e., all
+        playedCards entries are empty.
+        :returns: True if it's the first play of the game, False otherwise.
+
+        """
+        return all(cards.empty(played) for played in self.playedCards)

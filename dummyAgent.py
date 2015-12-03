@@ -17,6 +17,8 @@ class DummyAgent(agent.Agent):
         :state: The current state from which we make a move.
         :returns: The (numCards, whichCard) action pair.
         """
+        if state.isInitialState():
+            return self.firstMove()
         allActions = self.getAllActions(state)
         mostPossible = max(map(op.itemgetter(0), allActions))
         choices = filter(lambda (n,c): n == mostPossible, allActions)
