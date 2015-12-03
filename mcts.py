@@ -19,7 +19,7 @@ exploration_c = 1/sqrt(2)
 """
 
 class mctsNode(state.State, agent.Agent):
-"""
+    """
     Class for game tree for MCTS
     lastMove = action taken from parent node
     visits = number of times node has been expanded
@@ -27,43 +27,49 @@ class mctsNode(state.State, agent.Agent):
     parent = parent node
     hand = current hand
 
-"""
-    def __init__(self, playedCards, whosTurn,
-                 topCard=None, lastPlayed=None, finished=[], lastMove, parent = None, hand, terminal):
     """
+    def __init__(self, playedCards, whosTurn, hand, idx, lastMove,
+                topCard=None, lastPlayed=None, finished=[], parent = None):
+        """
         lastMove =  action from parent Node, None for the root node
         children =  list of all child nodes
 
-    """
+        """
         self.lastMove = lastMove
         self.visits = 0.
         self.score = 0.
-        if terminal:
-            self.score = sys.maxint
+        self.terminal = cards.empty(hand)
         self.children = []
         self.parent  = parent
         self.hand = hand
+        self.idx = idx
         super(mctsNode, self).__init__(playedCards, whosTurn,
                      topCard=None, lastPlayed=None, finished=[])
+        # need a super statement for the agent id
 
     # adds a particular child to a node
     def addChild(self, action):
         # get successor state from state module
         state = self.getChild(action)
-        terminal = False
-        if state.isFinalState():
-            terminal = True
+
         # update, curent hand and append child node
         newHand = cards.diff(self.hand, {action[1]: action[0]})
-        self.children.append(mctsNode(state.playedCards, state.whosTurn, state.topCard,
-            state.lastPlayed, state.finished, action, self, newHand, terminal))
+        if cards.empty(newHand):
+            # missing the definition of self.idx
+            # need to flip score since president is first on the list
+            # score for terminal nodes is equal to the position in
+            score =  state.finished.index(self.idx) ** -1
+
+        self.children.append(mctsNode(state.playedCards, state.whosTurn,
+                            newHand, self.idx, action, state.topCard,
+                            state.lastPlayed, state.finished, self))
 
     # adds all children to a node
     def addAllChildren(self):
         poss_actions = self.getAllActions()
         for action in poss_actions:
             self.addChild(action)
-#TODO what do you do if the tree is completely expanded, or if all the children are terminal nodes
+#todo what do you do if the tree is completely expanded, or if all the children are terminal nodes
 #what happens with selection
 
 class mctsAgent(agent.Agent):
@@ -95,8 +101,9 @@ class mctsAgent(agent.Agent):
     # given a node, plays out game using the default policy returning a score for the node
     def simulation(node):
         # dummy agents to play the remaining games quickly
-
-        cardsLeft = cards.diff(cards.allCards, [node.cardsPlayed, node.hand])
+        if node.terminal:
+            return node.score
+        cardsLeft = cards.diff(cards.allCards(), [node.cardsPlayed, node.hand])
         otherRemaining = list(node.numRemaining)
         del otherRemaining[self.idx]
         hands = cards.dealHands(cardsLeft , otherRemaining)
@@ -104,7 +111,7 @@ class mctsAgent(agent.Agent):
         agents = [dummyAgent.DummyAgent] * node.numPlayers
         game = game.Game(agents, hands, node.playedCards, node.whosTurn)
         results = game.playGame()
-        return results.index(self.idx)
+        return results.index(self.idx) ** -1
 
 
     # updates all nodes up to the root based on result of simulation
@@ -118,9 +125,9 @@ class mctsAgent(agent.Agent):
 
     def makeMove(self, state):
         time_start = time.time()
-        time_end  = 5
+        time_end  = 2
         root = mctsNode(state.playedCards, state.whosTurn,
-                     state.topCard, state.lastPlayed, state.finished, None, self.hand)
+                     state.topCard, state.lastPlayed, state.finished, None, self.hand, self.idx)
         while time.time() < time_start + time_end:
             nextNode = self.selection(root)
             result = self.simulation(node)
