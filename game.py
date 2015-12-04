@@ -89,11 +89,6 @@ class Game(object):
         # if whole game is played, return order of agent IDs from president to asshole
         if curState.isFinalState():
             results = list(curState.finished)
-            # the game is over, append the asshole and return the results
-            for p in xrange(self.numPlayers):
-                if p not in results:
-                    results.append(p)
-                    break
         else:
             results = sorted(
                 range(self.numPlayers),

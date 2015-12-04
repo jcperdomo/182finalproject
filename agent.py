@@ -19,10 +19,10 @@ class Agent(object):
         assert numThrees > 0
         return (numThrees, 0)
 
-    def makeMove(self, state):
-        """Returns the action to be made given a state.
+    def makeMove(self, node):
+        """Returns the action to be made given a node.
 
-        :state: The state from which the agent is making the move.
+        :node: The node from which the agent is making the move.
         :returns: A (numCards, whichCard) action. numCards == 0 represents no
         action (i.e., a pass).
 
@@ -36,10 +36,10 @@ class Agent(object):
         """
         return sum(self.hand.itervalues())
 
-    def getAllActions(self, state):
-        """Returns list of all legal actions given a state.
+    def getAllActions(self, node):
+        """Returns list of all legal actions given a node.
 
-        :state: The state from which we are considering actions. Must have
+        :node: The node from which we are considering actions. Must have
         whosTurn of the current agent.
         :returns: A list of (numCards, whichCard) actions.
 
@@ -53,9 +53,10 @@ class Agent(object):
             for card, num in self.hand.iteritems()
             for numCards in xrange(1, num+1)
         }
-        filterFunc = lambda (n,c): (n == state.topCard[0] and
-                                    c > state.topCard[1])
-        if state.topCard is None:
+        allPossiblePlays = sorted(allPossiblePlays)
+        filterFunc = lambda (n,c): (n == node.topCard[0] and
+                                    c > node.topCard[1])
+        if node.topCard is None:
             return allPossiblePlays
         else:
             return  [PASS] + filter(filterFunc, allPossiblePlays)

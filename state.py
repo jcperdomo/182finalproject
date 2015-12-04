@@ -1,3 +1,4 @@
+from copy import deepcopy
 import cards
 
 class State(object):
@@ -36,11 +37,11 @@ class State(object):
         """
         numCards, whichCard = action
         # set defaults
-        nextPlayedCards = list(self.playedCards)
+        nextPlayedCards = deepcopy(self.playedCards)
         nextWhosTurn = (self.whosTurn + 1) % self.numPlayers
         nextTopCard = self.topCard
         nextLastPlayed = self.lastPlayed
-        nextFinished = self.finished
+        nextFinished = deepcopy(self.finished)
         # if a real move was made, update next state
         if numCards > 0:
             nextPlayedCards[self.whosTurn][whichCard] += numCards
@@ -65,7 +66,7 @@ class State(object):
         """
         numDone = len(self.finished)
         # if all but one have used all their cards, the game is over
-        if numDone >= self.numPlayers - 1:
+        if numDone >= self.numPlayers:
             return True
         else:
             return False
