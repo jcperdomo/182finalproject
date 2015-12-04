@@ -1,4 +1,4 @@
-import game, maxN, dummyAgent
+import game, dummyAgent
 
 gm = game.Game([dummyAgent.DummyAgent for i in xrange(4)], verbose=True)
 for agent in gm.agents:
