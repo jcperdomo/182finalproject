@@ -11,10 +11,6 @@ class MaxNAgent(agent.Agent):
     """An agent that plays according to the Max-N algorithm for multiplayer
     games. (TODO: explain max-n more, as well as how we sampling cards)"""
 
-    def __init__(self, idx, hand):
-        """Initialization for the Dummy Agent."""
-        super(MaxNAgent, self).__init__(idx, hand)
-
     def makeMove(self, state):
         """Chooses a move by (TODO: explain max-n)
 
@@ -22,73 +18,72 @@ class MaxNAgent(agent.Agent):
         :returns: The (numCards, whichCard) action pair and the values of the
         node for each player.
         """
+        # if it's an initial state, you have to play your 3's
+        if state.isInitialState():
+            numThrees = self.hand[0]
+            return (numThrees, 0)
         allActions = self.getAllActions(state)
+        # if there's only one option, just play that action (it's a pass)
         if len(allActions) == 1:
             return allActions[0]
-        totalPlayed = sum(sum(played.values()) for played in state.playedCards)
-        bestActions = Counter()
         # subtract played cards and your own hand from cards remaining
-        cardsLeft = cards.allCards()
-        for played in state.playedCards:
-            cardsLeft = cards.diff(cardsLeft, played)
-        cardsLeft = cards.diff(cardsLeft, self.hand)
+        cardsLeft = cards.diff(cards.allCards(), [state.playedCards,self.hand])
 
-        # sample opponent hands
-        print 'trialing', state.topCard, self.hand
-        initHandSize = 52 / state.numPlayers
-        for trial in xrange(25):
+        # sample opponent hands on each trial and keep track of best actions in
+        # each trial
+        bestActions = Counter()
+        print '{} possible actions'.format(len(allActions))
+        start = time.time()
+        for trial in xrange(5):
             print 'trial', trial
-            hands = cards.dealHands(
-                cardsLeft, 
-                [ 
-                    initHandSize - sum(played.itervalues())
-                    for i, played in enumerate(state.playedCards) 
-                    if i != self.idx # don't give hand for current player
-                ]
-            )
+            # get number of remaining cards for everyone else and deal hands
+            withoutMe = list(state.numRemaining)
+            del withoutMe[self.idx]
+            hands = cards.dealHands(cardsLeft, withoutMe)
+            # put my hand back in
             hands.insert(self.idx, self.hand)
             agents = map(lambda (i,h): MaxNAgent(i, h),
                          zip(xrange(state.numPlayers), hands))
-            bestAct, bestVals = maxN(state, self, agents, 0, state.numPlayers*2)
+            bestAct, bestVal = maxN(state, agents, 0, 2*state.numPlayers)
             bestActions[bestAct] += 1
         
         # get most frequent best action and return
         allBest = max(bestActions, key=bestActions.get)
-        print allBest, bestActions
+        print allBest, bestActions, '{} seconds'.format(time.time() - start)
         return allBest
 
 
-def maxN(state, player, agents, d, maxDepth):
-    numPlayers = len(agents)
-    # returns act, val
-    allActions = player.getAllActions(state)
-    if d > maxDepth:
-        # heuristic - take action that maximizes cards played
-        bestAct = None
-        bestVals = [-float('inf') for p in xrange(numPlayers)]
-        for possAct in allActions:
-            child = state.getChild(possAct)
-            cardsPlayed = [sum(played.itervalues())
-                           for played in state.playedCards]
-            if cardsPlayed[player.idx] > bestVals[player.idx]:
-                bestAct = possAct
-                bestVals = cardsPlayed
-        return bestAct, bestVals
-    if state.isFinalState():
-        assert sum(player.hand.values()) == 0
-        return (0, 0), [numPlayers - state.finished.index(player) 
-                        if player in state.finished else numPlayers - 1
-                        for player in xrange(numPlayers)]
-    bestAct = None
-    bestVals = [-float('inf') for i in xrange(numPlayers)]
-    for possAct in allActions:
-        numCards, whichCard = possAct
-        child = state.getChild(possAct)
-        nextPlayer = agents[child.whosTurn]
-        nextAllActions = nextPlayer.getAllActions(child)
-        hisBestAct, hisVals = maxN(child, nextPlayer, agents, d+1, maxDepth)
-        if hisVals[player.idx] > bestVals[player.idx]:
-            bestVals = hisVals
-            bestAct = possAct
+def maxN(node, agents, d, maxDepth):
+    """Returns best action and corresponding tuple as given by the max-n
+    algorithm for the current node.
 
-    return bestAct, bestVals
+    :node: the current node.
+    :returns: returns a tuple (bestAction, bestValue) where bestValue is a
+    tuple of values (one for each player).
+    """
+    player = agents[node.whosTurn]
+    if node.isFinalState():
+        places = [node.finished.index(i) for i in xrange(node.numPlayers)]
+        return ((0, -1), places)
+    # if at max depth, see which move minimizes cards remaining
+    # TODO: improve the heuristic
+    if d >= maxDepth:
+        bestAct = (0, -1)
+        bestVal = [-nc for nc in node.numRemaining]
+        for act in player.getAllActions(node):
+            child = node.getChild(act)
+            childVal = [-nc for nc in child.numRemaining]
+            if childVal[player.idx] > bestVal[player.idx]:
+                bestAct = act
+                bestVal = childVal
+        return bestAct, bestVal
+    # otherwise, continue to recurse down the tree
+    bestAct = (0, -1)
+    bestVal = tuple(-float('inf') for i in xrange(node.numPlayers))
+    for act in player.getAllActions(node):
+        child = node.getChild(act)
+        childAct, childVal = maxN(child, agents, d+1, maxDepth)
+        if childVal[player.idx] > bestVal[player.idx]:
+            bestAct = act
+            bestVal = childVal
+    return bestAct, bestVal
