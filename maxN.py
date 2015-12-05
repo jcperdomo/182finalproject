@@ -31,7 +31,7 @@ class MaxNAgent(agent.Agent):
 
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 5
+        numTrials = 10
         # sample hands several times in parallel
         pool = mp.Pool(numTrials)
         start = time.time()
@@ -42,7 +42,7 @@ class MaxNAgent(agent.Agent):
         pool.close()
         pool.join()
         allBest = max(bestActions, key=bestActions.get)
-        # print allBest, bestActions, '{} seconds'.format(time.time() - start)
+        print allBest, bestActions, '{} seconds'.format(time.time() - start)
         return allBest
 
 
@@ -100,11 +100,9 @@ def maxN(node, agents, d, maxDepth):
     bestAct = (0, -1)
     bestVal = tuple(-float('inf') for i in xrange(node.numPlayers))
     actions = player.getAllActions(node)
-    anotherDepth = 1
     for act in player.getAllActions(node):
         child = node.getChild(act)
-        childAct, childVal = maxN(child, agents,
-                                  d + anotherDepth, maxDepth)
+        childAct, childVal = maxN(child, agents, d+1, maxDepth)
         if childVal[player.idx] > bestVal[player.idx]:
             bestAct = act
             bestVal = childVal
