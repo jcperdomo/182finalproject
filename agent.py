@@ -45,8 +45,8 @@ class Agent(object):
         :returns: A list of (numCards, whichCard) actions.
 
         """
-        # corner case: player is out of cards, so return a pass
-        if self.numCardsLeft() == 0:
+        # corner case: if player is out of cards, return a pass
+        if self.idx in node.finished:
             return [PASS]
         # corner case: if it's the initial state, return all 3's
         if node.isInitialState():

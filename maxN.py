@@ -20,12 +20,8 @@ class MaxNAgent(agent.Agent):
         :returns: The (numCards, whichCard) action pair and the values of the
         node for each player.
         """
-        # if it's an initial state, you have to play your 3's
-        if node.isInitialState():
-            numThrees = self.hand[0]
-            return (numThrees, 0)
         allActions = self.getAllActions(node)
-        # if there's only one option, just play that action (it's a pass)
+        # if there's only one option, just play that action
         if len(allActions) == 1:
             return allActions[0]
 
