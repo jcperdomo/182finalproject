@@ -57,7 +57,7 @@ class Agent(object):
             for card, num in self.hand.iteritems()
             for numCards in xrange(1, num+1)
         }
-        allPossiblePlays = sorted(allPossiblePlays, key=lambda (n,c): (c,n))
+        allPossiblePlays = sorted(allPossiblePlays, key=lambda (n,c): (c,-n))
         filterFunc = lambda (n,c): (n == node.topCard[0] and
                                     c > node.topCard[1])
         if node.topCard is None:
