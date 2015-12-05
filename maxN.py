@@ -1,5 +1,7 @@
 from collections import Counter
+import multiprocessing as mp
 import operator as op
+import sys
 import time
 
 import agent
@@ -11,46 +13,62 @@ class MaxNAgent(agent.Agent):
     """An agent that plays according to the Max-N algorithm for multiplayer
     games. (TODO: explain max-n more, as well as how we sampling cards)"""
 
-    def makeMove(self, state):
+    def makeMove(self, node):
         """Chooses a move by (TODO: explain max-n)
 
-        :state: The current state from which we make a move.
+        :node: The current state from which we make a move.
         :returns: The (numCards, whichCard) action pair and the values of the
         node for each player.
         """
         # if it's an initial state, you have to play your 3's
-        if state.isInitialState():
+        if node.isInitialState():
             numThrees = self.hand[0]
             return (numThrees, 0)
-        allActions = self.getAllActions(state)
+        allActions = self.getAllActions(node)
         # if there's only one option, just play that action (it's a pass)
         if len(allActions) == 1:
             return allActions[0]
-        # subtract played cards and your own hand from cards remaining
-        cardsLeft = cards.diff(cards.allCards(), [state.playedCards,self.hand])
 
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        bestActions = Counter()
-        print '{} possible actions'.format(len(allActions))
+        numTrials = 5
+        # sample hands several times in parallel
+        pool = mp.Pool(numTrials)
         start = time.time()
-        for trial in xrange(5):
-            print 'trial', trial
-            # get number of remaining cards for everyone else and deal hands
-            withoutMe = list(state.numRemaining)
-            del withoutMe[self.idx]
-            hands = cards.dealHands(cardsLeft, withoutMe)
-            # put my hand back in
-            hands.insert(self.idx, self.hand)
-            agents = map(lambda (i,h): MaxNAgent(i, h),
-                         zip(xrange(state.numPlayers), hands))
-            bestAct, bestVal = maxN(state, agents, 0, 2*state.numPlayers)
-            bestActions[bestAct] += 1
-        
-        # get most frequent best action and return
+        inputs = [
+            (trial, node, self.idx, self.hand) for trial in xrange(numTrials)
+        ]
+        bestActions = Counter(pool.map_async(simulate, inputs).get(sys.maxint))
+        pool.close()
+        pool.join()
         allBest = max(bestActions, key=bestActions.get)
-        print allBest, bestActions, '{} seconds'.format(time.time() - start)
+        # print allBest, bestActions, '{} seconds'.format(time.time() - start)
         return allBest
+
+
+def simulate(args):
+    """Function to simulate the other players' cards randomly and play out the
+    max^n tree based on those hands. Returns the best action.
+
+    :trialNum: Trial number (for debugging and unique identification).
+    :node: The current State object.
+    :idx: The index of the current player.
+    :hand: The current player's hand, which is known.
+    :returns: The action tuple corresponding to the best action to take.
+    """
+    trialNum, node, idx, hand = args
+    # subtract played cards and your own hand from cards remaining
+    cardsLeft = cards.diff(cards.allCards(), [node.playedCards, hand])
+    # get number of remaining cards for everyone else and deal hands
+    withoutMe = list(node.numRemaining)
+    del withoutMe[idx]
+    hands = cards.dealHands(cardsLeft, withoutMe)
+    # put my hand back in
+    hands.insert(idx, hand)
+    agents = map(lambda (i,h): MaxNAgent(i, h),
+                 zip(xrange(node.numPlayers), hands))
+    bestAct, bestVal = maxN(node, agents, 0, 2*node.numPlayers)
+    return bestAct
 
 
 def maxN(node, agents, d, maxDepth):
@@ -69,10 +87,10 @@ def maxN(node, agents, d, maxDepth):
     # TODO: improve the heuristic
     if d >= maxDepth:
         bestAct = (0, -1)
-        bestVal = [-nc for nc in node.numRemaining]
+        bestVal = [heuristic(node, p) for p in agents]
         for act in player.getAllActions(node):
             child = node.getChild(act)
-            childVal = [-nc for nc in child.numRemaining]
+            childVal = [heuristic(node, p) for p in agents]
             if childVal[player.idx] > bestVal[player.idx]:
                 bestAct = act
                 bestVal = childVal
@@ -80,10 +98,30 @@ def maxN(node, agents, d, maxDepth):
     # otherwise, continue to recurse down the tree
     bestAct = (0, -1)
     bestVal = tuple(-float('inf') for i in xrange(node.numPlayers))
+    actions = player.getAllActions(node)
+    anotherDepth = 1
     for act in player.getAllActions(node):
         child = node.getChild(act)
-        childAct, childVal = maxN(child, agents, d+1, maxDepth)
+        childAct, childVal = maxN(child, agents,
+                                  d + anotherDepth, maxDepth)
         if childVal[player.idx] > bestVal[player.idx]:
             bestAct = act
             bestVal = childVal
     return bestAct, bestVal
+
+
+def heuristic(node, player):
+    """A heuristic for when we reach maxDepth before reaching a final state.
+
+    :node: The current node at which to evaluate.
+    :player: The agent object for which we are evaluating the state.
+    :returns: A float, with higher values representing better positions.
+    """
+    idx = player.idx
+    numCardsPlayed = sum(node.playedCards[idx].itervalues())
+    propCardsPlayed = float(numCardsPlayed) / node.initHandSize
+    strengthPlayed = sum(k*v for k, v in node.playedCards[idx].iteritems())
+    strengthRemaining = sum(k*v for k, v in player.hand.iteritems())
+    initStrength = strengthPlayed + strengthRemaining
+    propStrengthRemaining = float(strengthRemaining) / initStrength
+    return propStrengthRemaining + propCardsPlayed
