@@ -31,7 +31,7 @@ class MaxNAgent(agent.Agent):
 
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 10
+        numTrials = 5
         # sample hands several times in parallel
         pool = mp.Pool(numTrials)
         start = time.time()
