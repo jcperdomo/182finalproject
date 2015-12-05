@@ -81,7 +81,8 @@ def maxN(node, agents, d, maxDepth):
     """
     player = agents[node.whosTurn]
     if node.isFinalState():
-        places = [node.finished.index(i) for i in xrange(node.numPlayers)]
+        places = [3*node.numPlayers - node.finished.index(i)
+                  for i in xrange(node.numPlayers)]
         return ((0, -1), places)
     # if at max depth, see which move minimizes cards remaining
     # TODO: improve the heuristic
