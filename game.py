@@ -11,7 +11,8 @@ class Game(object):
     """The class for the actual game, which is responsible for getting moves
     from players and organizing play."""
 
-    def __init__(self, agents, hands=None, cardsPlayed=None, whosTurn=None):
+    def __init__(self, agents, hands=None, playedCards=None, whosTurn=None,
+                 topCard=None, lastPlayed=None, finished=[]):
         """Initializes the game with the agents listed as the players.
 
         :agents: Either a list of agent objects or a list of agent
@@ -19,10 +20,13 @@ class Game(object):
         done here; if objects, we simply assign the list to self.agents.
         :hands: list of hand dicts; if supplied, will be used as the hands for
         the agents.
-        :cardsPlayed: list of played card dicts; if supplied, will be used for
-        the cardsPlayed for the initialState.
+        :playedCards: list of played card dicts; if supplied, will be used for
+        the playedCards for the initialState.
         :whosTurn: index of agent whose turn it is; if supplied, the game will
         start with this player.
+
+        topCard, lastPlayed, and finished are all parameters passed on to the
+        initial state; for more information, see state.State's __init__.
         """
         self.numPlayers = len(agents)
         if hands is None:
@@ -30,14 +34,14 @@ class Game(object):
             hands = cards.dealHands(deck, 52/self.numPlayers)
 
         # if agents is a list of agent objects, set that to self.agents
-        if isinstance(agents[0], agent.Agent):
+        if all(isinstance(a, agent.Agent) for a in agents):
             self.agents = agents
         # otherwise, construct the agents from the list of agent constructors
         else:
             self.agents = [agentConstructor(i, hand)
-                      for i, (agentConstructor,hand) in 
+                      for i, (agentConstructor,hand) in
                       enumerate(zip(agents, hands))]
-        
+
         if whosTurn is None:
             # randomly choose a player with a 3 to start
             # (proportional to how many 3's they have)
@@ -46,14 +50,16 @@ class Game(object):
                 threes[p] += hand[0]
             whosTurn = np.random.choice(cards.cardDictToList(threes))
 
-        if cardsPlayed is None:
-            cardsPlayed = [cards.noCards() for i in xrange(self.numPlayers)]
+        if playedCards is None:
+            playedCards = [cards.noCards() for i in xrange(self.numPlayers)]
 
-        self.initialState = state.State(cardsPlayed, whosTurn)
-    
-    def playGame(self, maxDepth=None, evalFunc=None):
+        self.initialState = state.State(playedCards, whosTurn, topCard,
+                                        lastPlayed, finished)
+
+    def playGame(self, verbose=False, maxDepth=None, evalFunc=None):
         """Plays through the game, getting an action at each turn for each player.
 
+        :verbose: If True, playGame will print each move made by each player.
         :maxDepth: depth to which (i.e., number of turns) the game will be
         played; if None, play whole game.
         :evalFunc: see :returns:.
@@ -70,28 +76,22 @@ class Game(object):
         maxDepth = float('inf') if maxDepth is None else maxDepth
         while not curState.isFinalState() and curDepth < maxDepth:
             curDepth += 1
-
             # figure out whose turn it is
             whosTurn = curState.whosTurn
             agentToMove = self.agents[whosTurn]
             # get the move - ask agent for move
             (numCards, whichCard) = agentToMove.makeMove(curState)
-            # make the move - take cards out of hand, update the state
-            agentToMove.hand[whichCard] -= numCards
-            # print state for inspection (DEBUGGING)
-            print curState.topCard, whosTurn, numCards, whichCard, map(lambda a: a.numCardsLeft(), self.agents)
-            time.sleep(.2)
-            # END DEBUGGING
+            if verbose:
+                print whosTurn, numCards, cards.cardRepr[whichCard]
+            # make the move by taking cards out of hand, if not a pass
+            if numCards > 0:
+                agentToMove.hand[whichCard] -= numCards
+            # update the state
             curState = curState.getChild((numCards, whichCard))
-        
+
         # if whole game is played, return order of agent IDs from president to asshole
         if curState.isFinalState():
             results = list(curState.finished)
-            # the game is over, append the asshole and return the results
-            for p in xrange(self.numPlayers):
-                if p not in results:
-                    results.append(p)
-                    break
         else:
             results = sorted(
                 range(self.numPlayers),

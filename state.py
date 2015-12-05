@@ -1,4 +1,5 @@
 from copy import deepcopy
+import cards
 
 class State(object):
 
@@ -24,8 +25,8 @@ class State(object):
         self.finished = finished
 
         # compute numRemaining
-        initHandSize = 52 / self.numPlayers
-        self.numRemaining = [initHandSize - sum(played.itervalues())
+        self.initHandSize = 52 / self.numPlayers
+        self.numRemaining = [self.initHandSize - sum(played.itervalues())
                              for played in playedCards]
 
     def getChild(self, action):
@@ -40,9 +41,9 @@ class State(object):
         nextWhosTurn = (self.whosTurn + 1) % self.numPlayers
         nextTopCard = self.topCard
         nextLastPlayed = self.lastPlayed
-        nextFinished = self.finished
+        nextFinished = deepcopy(self.finished)
         # if a real move was made, update next state
-        if numCards:
+        if numCards > 0:
             nextPlayedCards[self.whosTurn][whichCard] += numCards
             nextTopCard = action
             nextLastPlayed = self.whosTurn
@@ -54,7 +55,8 @@ class State(object):
         nextState = State(nextPlayedCards, nextWhosTurn,
                           nextTopCard, nextLastPlayed, nextFinished)
         # if player ran out of cards at this transition, add to finished list
-        if nextState.numRemaining[self.whosTurn] == 0:
+        if (self.numRemaining[self.whosTurn] > 0 and
+                nextState.numRemaining[self.whosTurn] == 0):
             nextState.finished.append(self.whosTurn)
         return nextState
 
@@ -64,7 +66,7 @@ class State(object):
         """
         numDone = len(self.finished)
         # if all but one have used all their cards, the game is over
-        if numDone == self.numPlayers - 1:
+        if numDone >= self.numPlayers:
             return True
         else:
             return False
@@ -86,3 +88,11 @@ class State(object):
         for player, handsize in enumerate(self.numRemaining):
             scores[player] += 13 - handsize
         return scores
+
+    def isInitialState(self):
+        """Returns True if this is the first play of the game, i.e., all
+        playedCards entries are empty.
+        :returns: True if it's the first play of the game, False otherwise.
+
+        """
+        return all(cards.empty(played) for played in self.playedCards)

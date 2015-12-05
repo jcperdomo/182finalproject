@@ -18,6 +18,12 @@ class DummyAgent(agent.Agent):
         :returns: The (numCards, whichCard) action pair.
         """
         allActions = self.getAllActions(state)
-        mostPossible = max(map(op.itemgetter(0), allActions))
-        choices = filter(lambda (n,c): n == mostPossible, allActions)
-        return min(choices, key=op.itemgetter(1))
+        # if the deck's just been cleared, play lowest card
+        if state.topCard is None:
+            return min(allActions, key=op.itemgetter(1))
+            return (self.hand[minCard], minCard)
+        # otherwise, play lowest card possible
+        else:
+            numToPlay = max(map(op.itemgetter(0), allActions))
+            choices = filter(lambda (n,c): n == numToPlay, allActions)
+            return min(choices, key=op.itemgetter(1))
