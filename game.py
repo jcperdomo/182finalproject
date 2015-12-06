@@ -12,7 +12,7 @@ class Game(object):
     from players and organizing play."""
 
     def __init__(self, agents, hands=None, playedCards=None, whosTurn=None,
-                 topCard=None, lastPlayed=None, finished=[], verbose=False):
+                 topCard=None, lastPlayed=None, finished=[]):
         """Initializes the game with the agents listed as the players.
 
         :agents: Either a list of agent objects or a list of agent
@@ -24,7 +24,6 @@ class Game(object):
         the playedCards for the initialState.
         :whosTurn: index of agent whose turn it is; if supplied, the game will
         start with this player.
-        :verbose: If True, playGame will print each move made by each player.
 
         topCard, lastPlayed, and finished are all parameters passed on to the
         initial state; for more information, see state.State's __init__.
@@ -35,9 +34,8 @@ class Game(object):
             hands = cards.dealHands(deck, 52/self.numPlayers)
 
         # if agents is a list of agent objects, set that to self.agents
-        if isinstance(agents[0], agent.Agent):
+        if all(isinstance(a, agent.Agent) for a in agents):
             self.agents = agents
-            print "AGENTS"
         # otherwise, construct the agents from the list of agent constructors
         else:
             self.agents = [agentConstructor(i, hand)
@@ -55,13 +53,13 @@ class Game(object):
         if playedCards is None:
             playedCards = [cards.noCards() for i in xrange(self.numPlayers)]
 
-        self.verbose = verbose
         self.initialState = state.State(playedCards, whosTurn, topCard,
                                         lastPlayed, finished)
 
-    def playGame(self, maxDepth=None, evalFunc=None):
+    def playGame(self, verbose=False, maxDepth=None, evalFunc=None):
         """Plays through the game, getting an action at each turn for each player.
 
+        :verbose: If True, playGame will print each move made by each player.
         :maxDepth: depth to which (i.e., number of turns) the game will be
         played; if None, play whole game.
         :evalFunc: see :returns:.
@@ -83,7 +81,7 @@ class Game(object):
             agentToMove = self.agents[whosTurn]
             # get the move - ask agent for move
             (numCards, whichCard) = agentToMove.makeMove(curState)
-            if self.verbose:
+            if verbose:
                 print whosTurn, numCards, cards.cardRepr[whichCard]
             # make the move by taking cards out of hand, if not a pass
             if numCards > 0:

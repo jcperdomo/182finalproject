@@ -25,8 +25,8 @@ class State(object):
         self.finished = finished
 
         # compute numRemaining
-        initHandSize = 52 / self.numPlayers
-        self.numRemaining = [initHandSize - sum(played.itervalues())
+        self.initHandSize = 52 / self.numPlayers
+        self.numRemaining = [self.initHandSize - sum(played.itervalues())
                              for played in playedCards]
 
     def getChild(self, action):

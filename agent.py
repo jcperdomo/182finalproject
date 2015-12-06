@@ -1,3 +1,5 @@
+import operator as op
+
 PASS = (0, -1)
 
 class Agent(object):
@@ -16,7 +18,6 @@ class Agent(object):
 
         """
         numThrees = self.hand[0]
-        assert numThrees > 0
         return (numThrees, 0)
 
     def makeMove(self, node):
@@ -44,16 +45,19 @@ class Agent(object):
         :returns: A list of (numCards, whichCard) actions.
 
         """
-        # corner case: player is out of cards, so return a pass
-        if self.numCardsLeft() == 0:
+        # corner case: if player is out of cards, return a pass
+        if self.idx in node.finished:
             return [PASS]
+        # corner case: if it's the initial state, return all 3's
+        if node.isInitialState():
+            return [self.firstMove()]
 
         allPossiblePlays = {
             (numCards, card)
             for card, num in self.hand.iteritems()
             for numCards in xrange(1, num+1)
         }
-        allPossiblePlays = sorted(allPossiblePlays)
+        allPossiblePlays = sorted(allPossiblePlays, key=lambda (n,c): (c,-n))
         filterFunc = lambda (n,c): (n == node.topCard[0] and
                                     c > node.topCard[1])
         if node.topCard is None:
