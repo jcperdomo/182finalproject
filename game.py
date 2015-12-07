@@ -56,6 +56,24 @@ class Game(object):
         self.initialState = state.State(playedCards, whosTurn, topCard,
                                         lastPlayed, finished)
 
+    def newGame(self, ordering):
+        deck = cards.allCards()
+        hands = cards.dealHands(deck, 52/self.numPlayers)
+        for i in xrange(self.numPlayers):
+            self.agents[i].hand = hands[i]
+        # swap cards
+        for i in xrange(2):
+            high = ordering.index(i)
+            low = ordering.index(self.numPlayers - i - 1)
+            cards.swapCards(hands[high], hands[low], 2 - i)
+
+        threes = collections.Counter()
+        for p, hand in enumerate(hands):
+            threes[p] += hand[0]
+        whosTurn = np.random.choice(cards.cardDictToList(threes))
+        playedCards = [cards.noCards() for i in xrange(self.numPlayers)]
+        self.initialState = state.State(playedCards, whosTurn, None, None, [])
+
     def playGame(self, verbose=False, maxDepth=None, evalFunc=None):
         """Plays through the game, getting an action at each turn for each player.
 
@@ -99,4 +117,15 @@ class Game(object):
                 reverse=True
             )
 
+        return results
+
+    def playMultGames(self, verbose=False, maxDepth=None, evalFunc=None, n=1):
+        """Plays n full games
+        """
+        results = []
+        for i in xrange(n):
+           res = self.playGame(verbose, maxDepth, evalFunc)
+           results.append(res)
+           print res
+           self.newGame(res)
         return results

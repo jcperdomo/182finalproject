@@ -12,6 +12,7 @@ class ParanoidAgent(agent.Agent):
     def __init__(self, idx, hand):
         """Initialization for the Dummy Agent."""
         super(ParanoidAgent, self).__init__(idx, hand)
+        self.nodeList = []
 
     def makeMove(self, state):
         allActions = self.getAllActions(state)
@@ -19,6 +20,7 @@ class ParanoidAgent(agent.Agent):
         if len(allActions) == 1:
             return allActions[0]
 
+        """
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
         numTrials = 5
@@ -34,16 +36,22 @@ class ParanoidAgent(agent.Agent):
         allBest = max(bestActions, key=bestActions.get)
         print allBest, bestActions, '{} seconds'.format(time.time() - start)
         return allBest
+        """
 
-        #start = time.time()
-        #res = simulate(state, self.idx, self.hand)
-        #print res, (time.time() - start)
-        #return res
+        start = time.time()
+        args = (0, state, self.idx, self.hand)
+        res, nodes = simulate(args)
+        print res, (time.time() - start)
+        self.nodeList.append(nodes)
+        return res
+
+nodesExpanded = 0
 
 def simulate(args):
     """Function to simulate the other players' cards randomly and play out the
     paranoid game tree based on those hands. Returns the best action.
     """
+    global nodesExpanded
     trial, state, index, hand = args
     # subtract played cards and your own hand from cards remaining
     cardsLeft = cards.diff(cards.allCards(), [state.playedCards, hand])
@@ -56,13 +64,16 @@ def simulate(args):
     agents = map(lambda (i,h): ParanoidAgent(i, h),
                  zip(xrange(state.numPlayers), hands))
     res = paranoid(state, 1, agents, -(sys.maxint -1), sys.maxint)
-    return res[0]
+    #if trial == 0:
+    #    print "Nodes expanded:", nodesExpanded
+    return res[0], nodesExpanded
 
 
 def paranoid (state, depth, agents, a, b):
+    global nodesExpanded
     act = (0, -1)
     player = agents[state.whosTurn]
-
+    nodesExpanded += 1
     if state.isFinalState():
         heu = state.heuristic()
         # Assume all players are playing against the max agent
