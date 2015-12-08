@@ -27,9 +27,9 @@ class MaxNAgent(agent.Agent):
 
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 5
+        numTrials = 20
         # sample hands several times in parallel
-        pool = mp.Pool(numTrials)
+        pool = mp.Pool(mp.cpu_count()-1)
         start = time.time()
         inputs = [
             (trial, node, self.idx, self.hand) for trial in xrange(numTrials)
@@ -119,4 +119,4 @@ def heuristic(node, player):
     strengthRemaining = sum(k*v for k, v in player.hand.iteritems())
     initStrength = strengthPlayed + strengthRemaining
     propStrengthRemaining = float(strengthRemaining) / initStrength
-    return propStrengthRemaining + propCardsPlayed
+    return propStrengthRemaining + 1.1*propCardsPlayed

@@ -1,15 +1,10 @@
-import agent
+import agent, maxN
 import cards
 
 class HumanAgent(agent.Agent):
 
     """An agent that asks the user for input from the command line each time it
     is his/her turn."""
-
-    def __init__(self, idx, hand):
-        """Initialization for the human agent, which requires nothing more than
-        the agent.Agent base class."""
-        super(HumanAgent, self).__init__(idx, hand)
 
     def makeMove(self, node):
         """The makeMove method that overrides the agent base class's makeMove;
@@ -37,6 +32,10 @@ class HumanAgent(agent.Agent):
         print 'Valid actions: {}'.format(
             ['{} {}'.format(n, cards.cardRepr[c]) for n, c in legalActions]
         )
+        mnAgent = maxN.MaxNAgent(self.idx, self.hand)
+        mnN, mnC = mnAgent.makeMove(node)
+        print 'The Max^n agent recommends playing {} {}'.format(
+            mnN, cards.cardRepr[mnC])
         action = None
         while action not in legalActions:
             actStr = raw_input(
