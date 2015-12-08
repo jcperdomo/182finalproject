@@ -29,64 +29,59 @@ class mctsNode(state.State):
 
     """
     # remove Agent inheritance just use state
-    def __init__(self, playedCards, whosTurn, hand, idx, lastMove,
+    def __init__(self, playedCards, whosTurn, hands, idx, lastMove,
                 topCard=None, lastPlayed=None, finished=[], parent = None, score=0.):
         """
         lastMove =  action from parent Node, None for the root node
         children =  list of all child nodes
+        visits  =  number of time node has been visited
+        whosTurn =  id of player to move
+        hands =  list of hand dictionaries for each player
+        idx = idx of agent
+        t
 
         """
         self.lastMove = lastMove
         self.visits = 0.
         self.score = score
-        self.terminal = cards.empty(hand)
         self.children = []
         self.parent  = parent
-        self.hand = hand
+        self.hands = hands
         self.idx = idx
-        self.turn = (self.idx ==  whosTurn)
+        self.terminal = cards.empty(hands[self.idx])
+        self.turn = (self.idx == whosTurn)
         super(mctsNode, self).__init__(playedCards, whosTurn,
-                     topCard=None, lastPlayed=None, finished=[])
-        # need a super statement for the agent id MISSING
+                     topCard, lastPlayed, finished)
 
     # adds a particular child to a node
     def addChild(self, action):
         # get successor state from state module
-        state = self.getChild(action)
-        # update, curent hand and append child node
-        newHand = self.hand
-        if self.turn:
-            newHand = cards.diff(self.hand, {action[1]: action[0]})
+        curr_state = state.State(self.playedCards, self.whosTurn,
+                            self.topCard, self.lastPlayed, self.finished)
+        newState = curr_state.getChild(action)
+        if action == agent.PASS:
+            newHands = list(self.hands)
+            #print "PASS action top card should be the same", newState.topCard
+        else:
+            #print "didn't pass", action, newState.topCard
+            player_hand  = dict(self.hands[self.whosTurn])
+            new_hand = cards.diff(player_hand, {action[1]: action[0]})
+            newHands = list(self.hands)
+            newHands[self.whosTurn] = new_hand
         score = 0.
-        if self.idx in state.finished:
-            #print "finished list ", state.finished
-            score = (state.finished.index(self.idx) + 1) ** -1
-        #print "Node Content:"
-        newNode = mctsNode(state.playedCards, state.whosTurn,
-                            newHand, self.idx, action, state.topCard,
-                            state.lastPlayed, state.finished, self, score)
-        #print newNode is None
+
+        if self.idx in newState.finished:
+            score = (newState.finished.index(self.idx) + 1) ** -1
+        newNode = mctsNode(newState.playedCards, newState.whosTurn,
+                            newHands, self.idx, action, newState.topCard,
+                            newState.lastPlayed, newState.finished, self, score)
         self.children.append(newNode)
 
     # adds all children to a node
-    def addAllChildren(self):
-        curr_state = state.State(self.playedCards, self.whosTurn, self.topCard,
-                                self.lastPlayed, self.finished)
-        if self.turn:
-            hand = self.hand
-        else:
-            hands = cards.dealHands(cards.diff(cards.allCards(),
-                curr_state.playedCards), curr_state.numRemaining)
-            hand = hands[curr_state.whosTurn]
-
-        player = agent.Agent(curr_state.whosTurn, hand)
-        poss_actions = player.getAllActions(curr_state)
-        for action in poss_actions:
-            #count += 1
+    def addAllChildren(self, actions):
+        for action in actions:
             self.addChild(action)
-        #print "number of children added ", count
-#todo what do you do if the tree is completely expanded, or if all the children are terminal nodes
-#what happens with selection
+
 
 class mctsAgent(agent.Agent):
 
@@ -101,59 +96,57 @@ class mctsAgent(agent.Agent):
                                 + c * sqrt(log(child.parent.visits)/(child.visits + 1)))
         # return best child
         return sorted_children[-1]
+    """
+        every node in the tree, has the hand of the agent, but when you make moves you make them based on the actions
+        of whos turn it is,
 
+        therefore, you need to keep track of the hands of all the player everytime in order to correctly
+        calculate the children for each node, each node needs a list of the current hand for each player
+        probably will update the simulation thing at that point at that point
+
+
+
+
+    """
     # returns node selected by tree policy
     def selection(self, root):
+        numDone = len(root.finished)
         if root.children == []:
-            root.addAllChildren()
-            #print "num children", len(root.children)
-            selected_child = random.choice(root.children)
-            #print "Selected child is NONE in selection ", selected_child is None
-            return selected_child
+            # player to play has no cards, but game isn't finished
+            if (not root.turn) and cards.empty(root.hands[root.whosTurn]) and root.numPlayers > numDone:
+                root.addChild(agent.PASS)
+                return self.selection(root.children[0])
+            elif (root.turn and root.terminal) or root.isFinalState():
+                return root
+            else:
+                curr_state = state.State(root.playedCards, root.whosTurn,
+                                root.topCard, root.lastPlayed, root.finished)
+                testagent = agent.Agent(root.whosTurn, root.hands[root.whosTurn])
+                actions = testagent.getAllActions(curr_state)
+                #print "hand at current node", root.hands[root.whosTurn]
+                #print "top card", root.topCard, THIS IS RIGHT
+                #print "actions", actions
+                root.addAllChildren(actions)
+                selected_child = random.choice(root.children)
+                return selected_child
         else:
-            #print "num childrenss", len(root.children)
-            #for i in root.children:
-            #    print i is None
             return self.selection(self.bestChild(root.children))
 
-    # expands all children for a node
-    def expansion(self, node):
-        #print "before num kids: ", len(node.children)
-        #print  "without adding children", node.children
-        node.addAllChildren()
-        #print "after num kids: ", len(node.children)
-        #print "having added all children", node.children
-        #for i in range(len(node.children)):
-        #    print isinstance(node.children[i], mctsNode)
-        #for i in node.children:
-        #    print "type el: ", type(i)
-        #    print "node is instance: ", isinstance(i, mctsNode)
-        # if all the nodes are terminal then ...
-        # if node.children == []:
-        print  "exited expansion"
-        res  = random.choice(node.children)
-        print res
-        return res
 
     # given a node, plays out game using the default policy returning a score for the node
     def simulation(self, node):
-        # dummy agents to play the remaining games quickly
-        #print "Entered simulation in MCTS"
-        #print node
-        #print "node is instance: ", isinstance(node, mctsNode)
         start = time.time()
-        if node.terminal:
+        # if agent's hand is empty return score
+        if cards.empty(node.hands[self.idx]):
             return node.score
-        cardsLeft = cards.diff(cards.allCards(), [node.playedCards, node.hand])
-        otherRemaining = list(node.numRemaining)
-        #print otherRemaining
-        del otherRemaining[node.idx]
-        #print self.idx
-        #print otherRemaining
-        hands = cards.dealHands(cardsLeft , otherRemaining)
-        hands.insert(node.idx, node.hand)
+        count = 0
+        for i in range(node.numPlayers):
+            if cards.empty(node.hands[i]):
+                count += 1
+        if count == node.numPlayers - 1:
+            return (node.numPlayers + 1) ** -1
         agents = [dummyAgent.DummyAgent for i in xrange(node.numPlayers)]
-        gm = game.Game(agents, hands, node.playedCards, node.whosTurn,
+        gm = game.Game(agents, node.hands, node.playedCards, node.whosTurn,
                        node.topCard, node.lastPlayed, node.finished)
         results = gm.playGame()
         end = time.time() - start
@@ -173,22 +166,31 @@ class mctsAgent(agent.Agent):
 
     def makeMove(self, state):
         time_start = time.time()
-        time_end  = 2
-        #def __init__(self, playedCards, whosTurn, hand, idx, lastMove,
-        #            topCard=None, lastPlayed=None, finished=[], parent = None, score=0.):
-        root = mctsNode(state.playedCards, state.whosTurn, self.hand, self.idx,
+        time_end  = 1
+        cardsLeft = cards.diff(cards.allCards(), [state.playedCards, self.hand])
+        otherRemaining = list(state.numRemaining)
+        del otherRemaining[self.idx]
+        hands = cards.dealHands(cardsLeft , otherRemaining)
+        hands.insert(self.idx, dict(self.hand))
+        root = mctsNode(state.playedCards, self.idx, hands, self.idx,
                         None, state.topCard, state.lastPlayed, state.finished)
+        if root.terminal:
+            #print self.hand
+            print self.idx in state.finished
+            #print "thinks state is terminal"
+            return agent.PASS
         loop_count = 0
+
         while time.time() < time_start + time_end:
             loop_count += 1
-            #print "looped"
             nextNode = self.selection(root)
-            #print "type of selected node is NONE in Make move", nextNode is None
-            #print "next node ", nextNode.numRemaining
             result = self.simulation(nextNode)
-            #print  "exited simulation2"
+            #print "exited simulation"
             self.backpropagation(nextNode, result)
-            #print "exited backpropagation stage"
-        #print "EXITED LOOP", loop_count
+        #print "number of loops", loop_count
         bestKid = sorted(root.children, key = lambda child: child.score)[-1]
+        #print "possible actions: ", self.getAllActions(state)
+        #print "actions at children", [child.lastMove for child in root.children]
+        #print "chosen action", bestKid.lastMove
+        print state.numRemaining
         return bestKid.lastMove
