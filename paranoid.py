@@ -20,10 +20,9 @@ class ParanoidAgent(agent.Agent):
         if len(allActions) == 1:
             return allActions[0]
 
-        """
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 5
+        numTrials = 15
         # sample hands several times in parallel
         pool = mp.Pool(numTrials)
         start = time.time()
@@ -33,8 +32,9 @@ class ParanoidAgent(agent.Agent):
         bestActions = Counter(pool.map_async(simulate, inputs).get(sys.maxint))
         pool.close()
         pool.join()
-        allBest = max(bestActions, key=bestActions.get)
-        print allBest, bestActions, '{} seconds'.format(time.time() - start)
+        allBest, nodes = max(bestActions, key=bestActions.get)
+        #print allBest, nodes, bestActions, '{} seconds'.format(time.time() - start)
+        self.nodeList.append(nodes / float(numTrials))
         return allBest
         """
 
@@ -44,6 +44,7 @@ class ParanoidAgent(agent.Agent):
         #print res, (time.time() - start)
         self.nodeList.append(nodes)
         return res
+        """
 
 nodesExpanded = 0
 
@@ -52,6 +53,7 @@ def simulate(args):
     paranoid game tree based on those hands. Returns the best action.
     """
     global nodesExpanded
+    nodesExpanded = 0
     trial, state, index, hand = args
     # subtract played cards and your own hand from cards remaining
     cardsLeft = cards.diff(cards.allCards(), [state.playedCards, hand])
@@ -77,7 +79,7 @@ def paranoid (state, depth, agents, a, b):
         # Assume all players are playing against the max agent
         return a, heu[0] - sum(heu[1:])
 
-    if depth >= 2:
+    if nodesExpanded >= 500: #depth >= 2:
         bestVal = [heuristic(state, p) for p in agents]
         for action in player.getAllActions(state):
             child = state.getChild(action)

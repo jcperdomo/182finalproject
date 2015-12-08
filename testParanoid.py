@@ -11,8 +11,7 @@ gm = game.Game([paranoid.ParanoidAgent] + [dummyAgent.DummyAgent for i in xrange
 #print gm.agents[0].nodeList
 res = gm.playMultGames(verbose=False, n=numGames)
 print '-------------------------------------------'
-print gm.agents[0].nodeList[-1]
-print 'Average nodes expanded after {0} games: {1:.5}'.format(numGames, gm.agents[0].nodeList[-1] / float(numGames))
+print 'Average nodes expanded after {0} games: {1:.5}'.format(numGames, sum(gm.agents[0].nodeList) / float(numGames))
 rankings = reduce(lambda x, y: map(operator.add, x, y), res)
 print '--------------------------------'
 print 'Average rankings after {0} games'.format(numGames)
