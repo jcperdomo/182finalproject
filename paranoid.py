@@ -41,7 +41,7 @@ class ParanoidAgent(agent.Agent):
         start = time.time()
         args = (0, state, self.idx, self.hand)
         res, nodes = simulate(args)
-        print res, (time.time() - start)
+        #print res, (time.time() - start)
         self.nodeList.append(nodes)
         return res
 
@@ -64,8 +64,6 @@ def simulate(args):
     agents = map(lambda (i,h): ParanoidAgent(i, h),
                  zip(xrange(state.numPlayers), hands))
     res = paranoid(state, 1, agents, -(sys.maxint -1), sys.maxint)
-    #if trial == 0:
-    #    print "Nodes expanded:", nodesExpanded
     return res[0], nodesExpanded
 
 

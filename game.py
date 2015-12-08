@@ -126,6 +126,5 @@ class Game(object):
         for i in xrange(n):
            res = self.playGame(verbose, maxDepth, evalFunc)
            results.append(res)
-           print res
            self.newGame(res)
         return results
