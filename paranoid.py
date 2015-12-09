@@ -10,7 +10,7 @@ class ParanoidAgent(agent.Agent):
     games."""
 
     def __init__(self, idx, hand):
-        """Initialization for the Dummy Agent."""
+        """Initialization for the Paranoid Agent."""
         super(ParanoidAgent, self).__init__(idx, hand)
         self.nodeList = []
 

@@ -92,6 +92,9 @@ class Game(object):
         # play out the game
         curDepth = 0
         maxDepth = float('inf') if maxDepth is None else maxDepth
+        if verbose:
+            for a in self.agents:
+                print a.hand
         while not curState.isFinalState() and curDepth < maxDepth:
             curDepth += 1
             # figure out whose turn it is
@@ -119,13 +122,14 @@ class Game(object):
 
         return results
 
-    def playMultGames(self, verbose=False, maxDepth=None, evalFunc=None, n=1):
+    def playMultGames(self, verbose=False, superVerbose=False, maxDepth=None, evalFunc=None, n=1):
         """Plays n full games
         """
         results = []
         for i in xrange(n):
-           res = self.playGame(verbose, maxDepth, evalFunc)
-           print res
+           res = self.playGame(superVerbose, maxDepth, evalFunc)
+           if verbose:
+               print res
            results.append(res)
            self.newGame(res)
         return results

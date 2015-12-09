@@ -1,15 +1,15 @@
 import game, paranoid, dummyAgent
 import operator
 
-numGames = 10
+numGames = 50
 numPlayers = 4
-gm = game.Game([paranoid.ParanoidAgent for i in xrange(numPlayers)])# + [dummyAgent.DummyAgent for i in xrange(numPlayers - 1)])
+gm = game.Game([paranoid.ParanoidAgent] + [dummyAgent.DummyAgent for i in xrange(numPlayers - 1)])
 #for agent in gm.agents:
 #    print sum(k*v for k, v in agent.hand.items()),
 #    print agent.hand
 #print gm.playGame(verbose=True)
 #print gm.agents[0].nodeList
-res = gm.playMultGames(verbose=False, n=numGames)
+res = gm.playMultGames(verbose=True, n=numGames)
 print '-------------------------------------------'
 print 'Average nodes expanded after {0} games: {1:.5}'.format(numGames, sum(gm.agents[0].nodeList) / float(numGames))
 rankings = reduce(lambda x, y: map(operator.add, x, y), res)

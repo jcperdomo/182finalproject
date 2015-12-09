@@ -21,7 +21,6 @@ class DummyAgent(agent.Agent):
         # if the deck's just been cleared, play lowest card
         if state.topCard is None:
             return min(allActions, key=op.itemgetter(1))
-            return (self.hand[minCard], minCard)
         # otherwise, play lowest card possible
         else:
             numToPlay = max(map(op.itemgetter(0), allActions))

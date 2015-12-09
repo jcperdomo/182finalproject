@@ -16,7 +16,9 @@ algorithm or devised a new one, the range of problems and issues you
 addressed, and the relation of these problems and issues to the
 techniques and ideas covered in the course.
 
-Investigating the best way to make an AI agent that plays the game Presidents. Chose this because of multiplayer games and uncertainty. Sturtevant was primary expert on this, see his thesis here. Also see MCTS paper. Adapted published algorithms, with inventions based on how to deal with uncertainty (sampling and heuristic). Built a lot on ideas from two player game in course, but more complicated by expanding them.
+This paper provides an in-depth investigation of a number of algorithms applied to the multiplayer imperfect information card game Presidents. We first applied two common multiplayer game playing algorithms to this problem: paranoid and max-n \cite{Sturtevant}. Neither algorithm inherently handles uncertainty, so we , We also investigated more complex algorithms that are better at handling uncertainty: Monte Carlo Tree Search \cite {MCTS} and reinforcement learning \cite{Fujita}.
+
+ Investigating the best way to make an AI agent that plays the game Presidents. Chose this because of multiplayer games and uncertainty. Sturtevant was primary expert on this, see his thesis here. Also see MCTS paper. Adapted published algorithms, with inventions based on how to deal with uncertainty (sampling and heuristic). Built a lot on ideas from two player game in course, but more complicated by expanding them.
 
 \section{Background}
 
@@ -32,6 +34,8 @@ For instance, \cite{hochreiter1997long}.
 Sampling based on cards that haven't been played
 
 \subsection{Paranoid}
+
+The first algorithm we implemented was a paranoid agent. The paranoid algorithm is a modified minimax algorithm which assumes that all the other players in the game are collaborating against it. This reduces the multiplayer game to a two player one in which traditional minimax can be applied. At a leaf node (a terminal state), the score is determined by 
 
 Modified minimax, where leaf/terminal nodes are a tuple of values representing the scores (or a heuristic estimate of those scores). Calculate intermediate values by subtracting all scores from first player score. Too deep to expand full game tree, so terminate at terminal node or after a certain depth or a certain number of nodes has been expanded (keep track of nodes expanded for pruning).
 
