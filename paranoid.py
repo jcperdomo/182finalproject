@@ -22,7 +22,7 @@ class ParanoidAgent(agent.Agent):
 
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 15
+        numTrials = 5
         # sample hands several times in parallel
         pool = mp.Pool(numTrials)
         start = time.time()
@@ -118,7 +118,7 @@ def paranoid (state, depth, agents, a, b):
             b = min(b, v)
     return act, v
 
-def heuristic(state, player):
+def heuristic(node, player):
     """A heuristic for when we reach maxDepth before reaching a final state.
 
     :node: The current node at which to evaluate.
@@ -126,10 +126,10 @@ def heuristic(state, player):
     :returns: A float, with higher values representing better positions.
     """
     idx = player.idx
-    numCardsPlayed = sum(state.playedCards[idx].itervalues())
-    propCardsPlayed = float(numCardsPlayed) / state.initHandSize
-    strengthPlayed = sum(k*v for k, v in state.playedCards[idx].iteritems())
+    numCardsPlayed = sum(node.playedCards[idx].itervalues())
+    propCardsPlayed = float(numCardsPlayed) / node.initHandSize
+    strengthPlayed = sum(k*v for k, v in node.playedCards[idx].iteritems())
     strengthRemaining = sum(k*v for k, v in player.hand.iteritems())
     initStrength = strengthPlayed + strengthRemaining
     propStrengthRemaining = float(strengthRemaining) / initStrength
-    return propStrengthRemaining + propCardsPlayed
+    return propStrengthRemaining + 1.1 * propCardsPlayed

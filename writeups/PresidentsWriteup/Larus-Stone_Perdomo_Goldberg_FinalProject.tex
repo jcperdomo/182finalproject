@@ -16,6 +16,8 @@ algorithm or devised a new one, the range of problems and issues you
 addressed, and the relation of these problems and issues to the
 techniques and ideas covered in the course.
 
+Investigating the best way to make an AI agent that plays the game Presidents. Chose this because of multiplayer games and uncertainty. Sturtevant was primary expert on this, see his thesis here. Also see MCTS paper. Adapted published algorithms, with inventions based on how to deal with uncertainty (sampling and heuristic). Built a lot on ideas from two player game in course, but more complicated by expanding them.
+
 \section{Background}
 
 Motivation for AI research into games. History of research into two player games. Extensions to multiplayer games, reasoning under uncertainty.
@@ -27,6 +29,20 @@ For instance, \cite{hochreiter1997long}.
 
 \section{Body 1}
 
+Sampling based on cards that haven't been played
+
+\subsection{Paranoid}
+
+Modified minimax, where leaf/terminal nodes are a tuple of values representing the scores (or a heuristic estimate of those scores). Calculate intermediate values by subtracting all scores from first player score. Too deep to expand full game tree, so terminate at terminal node or after a certain depth or a certain number of nodes has been expanded (keep track of nodes expanded for pruning).
+
+\subsubsection{Pruning}
+
+Standard a-b pruning works here
+
+\subsection{Max-n}
+
+\subsection{MCTS}
+
 A clear specification of the algorithm(s) you used and a description
 of the main data structures in the implementation. Include a
 discussion of any details of the algorithm that were not in the
@@ -36,6 +52,7 @@ your paper.
 
 \section{Body 2}
 
+Unsure if we want this?
 
 \begin{algorithm}
   \begin{algorithmic}
@@ -56,6 +73,8 @@ system. Testing is a critical part of system construction, and the
 scope of your testing will be an important component in our
 evaluation. Discuss what you learned from the implementation.
 
+Can test on a number of different axes--time to run, nodes expanded, how it does playing against dummy agents, how it does playing against other algorithms, how it does playing against itself, number of times we sample.
+
 \begin{table}
   \centering
   \begin{tabular}{ll}
@@ -71,14 +90,35 @@ evaluation. Discuss what you learned from the implementation.
 
 \subsection{Methods and Models}
 
+Wrote dummy agents to play lowest legal card--naive algorithm. Baseline to test against that for how good our agents were.
 
 \subsection{Results}
 
  For algorithm-comparison projects: a section reporting empirical comparison results preferably presented graphically.
 
+Table 1: showing time to run on 50 games, average score
+
+Graph 1: Paranoid (5 trials, include error bars)
+
+Bar graph showing: 
+
+Average score for Dummy vs Dummies
+
+Paranoid vs Dummies (sample once, 500 nodes)
+
+Paranoid vs Dummies (sample 5 times, 500 nodes)
+
+Paranoid vs Dummies (sample 25 times, 500 nodes)
+
+Paranoid vs Dummies (sample 25 times, 1500 nodes)
+
+Graph 2: Max-n
+
+Graph 3: MCTS
 
 \subsection{Discussion}
 
+How we could improve. How important the heuristic was. RL and some of the challenges (discretizing state space)
 
 \appendix
 

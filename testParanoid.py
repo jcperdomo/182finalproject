@@ -1,9 +1,9 @@
 import game, paranoid, dummyAgent
 import operator
 
-numGames = 50
+numGames = 10
 numPlayers = 4
-gm = game.Game([paranoid.ParanoidAgent] + [dummyAgent.DummyAgent for i in xrange(numPlayers - 1)])
+gm = game.Game([paranoid.ParanoidAgent for i in xrange(numPlayers)])# + [dummyAgent.DummyAgent for i in xrange(numPlayers - 1)])
 #for agent in gm.agents:
 #    print sum(k*v for k, v in agent.hand.items()),
 #    print agent.hand
