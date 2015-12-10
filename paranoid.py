@@ -22,7 +22,7 @@ class ParanoidAgent(agent.Agent):
 
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 1
+        numTrials = 10
         # sample hands several times in parallel
         pool = mp.Pool(numTrials)
         start = time.time()
@@ -33,7 +33,7 @@ class ParanoidAgent(agent.Agent):
         pool.close()
         pool.join()
         allBest, nodes = max(bestActions, key=bestActions.get)
-        print allBest, nodes, bestActions, '{} seconds'.format(time.time() - start)
+        #print allBest, nodes, bestActions, '{} seconds'.format(time.time() - start)
         self.nodeList.append(nodes / float(numTrials))
         return allBest
         """
@@ -81,7 +81,7 @@ def paranoid (state, depth, agents, a, b):
         pl = places.pop(player.idx)
         return ((0, -1), pl - sum(places))
 
-    if depth > 2 * state.numPlayers: #nodesExpanded >= 500: #depth >= 2:
+    if depth > 3 * state.numPlayers: #nodesExpanded >= 500: #depth >= 2:
         bestVal = [heuristic(state, p) for p in agents]
         playerBest = bestVal.pop(player.idx)
         best = playerBest - sum(bestVal)
