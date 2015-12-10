@@ -10,7 +10,7 @@ class ParanoidAgent(agent.Agent):
     games."""
 
     def __init__(self, idx, hand):
-        """Initialization for the Dummy Agent."""
+        """Initialization for the Paranoid Agent."""
         super(ParanoidAgent, self).__init__(idx, hand)
         self.nodeList = []
 
@@ -22,7 +22,7 @@ class ParanoidAgent(agent.Agent):
 
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 5
+        numTrials = 1
         # sample hands several times in parallel
         pool = mp.Pool(numTrials)
         start = time.time()
@@ -33,7 +33,7 @@ class ParanoidAgent(agent.Agent):
         pool.close()
         pool.join()
         allBest, nodes = max(bestActions, key=bestActions.get)
-        #print allBest, nodes, bestActions, '{} seconds'.format(time.time() - start)
+        print allBest, nodes, bestActions, '{} seconds'.format(time.time() - start)
         self.nodeList.append(nodes / float(numTrials))
         return allBest
         """
@@ -73,28 +73,34 @@ def paranoid (state, depth, agents, a, b):
     global nodesExpanded
     act = (0, -1)
     player = agents[state.whosTurn]
-    nodesExpanded += 1
+    #nodesExpanded += 1
     if state.isFinalState():
-        heu = state.heuristic()
         # Assume all players are playing against the max agent
-        return a, heu[0] - sum(heu[1:])
+        places = [5 * state.numPlayers - state.finished.index(i)
+                              for i in xrange(state.numPlayers)]
+        pl = places.pop(player.idx)
+        return ((0, -1), pl - sum(places))
 
-    if nodesExpanded >= 500: #depth >= 2:
+    if depth > 2 * state.numPlayers: #nodesExpanded >= 500: #depth >= 2:
         bestVal = [heuristic(state, p) for p in agents]
+        playerBest = bestVal.pop(player.idx)
+        best = playerBest - sum(bestVal)
         for action in player.getAllActions(state):
             child = state.getChild(action)
             childVal = [heuristic(state, p) for p in agents]
-            if childVal[player.idx] > bestVal[player.idx]:
+            cB = childVal.pop(player.idx)
+            childBest = cB - sum(childVal)
+            if childBest > best:
                 act = action
-                bestVal = childVal
-        return act, bestVal[0] - sum(bestVal[1:])
+                best = childBest
+        return act, best
 
     # The max player
     if state.whosTurn == 0:
         v = -(sys.maxint - 1)
         for action in player.getAllActions(state):
             nextState = state.getChild(action)
-            val = paranoid(nextState, depth, agents, a, b)[1]
+            val = paranoid(nextState, depth + 1, agents, a, b)[1]
             if val > v:
                 v = val
                 act = action
@@ -109,7 +115,7 @@ def paranoid (state, depth, agents, a, b):
             depth += 1
         for action in player.getAllActions(state):
             nextState = state.getChild(action)
-            val = paranoid(nextState, depth, agents, a, b)[1]
+            val = paranoid(nextState, depth + 1, agents, a, b)[1]
             if val < v:
                 v = val
                 act = action

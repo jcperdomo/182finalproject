@@ -45,7 +45,7 @@ def dealHands(cardsLeft, handSizes):
 
     """
     if not isinstance(handSizes, collections.Iterable):
-        handSizes = [handSizes]*int(52./handSizes)
+        handSizes = [handSizes for i in xrange(int(52./handSizes))]
     allCards = cardDictToList(cardsLeft)
     np.random.shuffle(allCards)
     cumHandSizes = np.cumsum(handSizes)[:-1]
