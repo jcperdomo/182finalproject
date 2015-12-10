@@ -1,11 +1,10 @@
 import game, maxN, dummyAgent
 
-numGames = 50
+numGames = 30
 numPlayers = 4
 gm = game.Game(
-    [
-        dummyAgent.DummyAgent, dummyAgent.DummyAgent,
-        dummyAgent.DummyAgent, maxN.MaxNAgent
+    [maxN.MaxNAgent, dummyAgent.DummyAgent, dummyAgent.DummyAgent,
+     dummyAgent.DummyAgent
     ]
 )
 

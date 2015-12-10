@@ -63,7 +63,7 @@ def simulate(args):
     hands.insert(idx, hand)
     agents = map(lambda (i,h): MaxNAgent(i, h),
                  zip(xrange(node.numPlayers), hands))
-    bestAct, bestVal = maxN(node, agents, 0, 2*node.numPlayers)
+    bestAct, bestVal = maxN(node, agents, 0, 1*node.numPlayers)
     return bestAct
 
 
