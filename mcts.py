@@ -10,11 +10,14 @@ from math import sqrt, log
 
 # constant used to gauge level of exploration in node selection
 c = 10
-budget = .5
+
+# time (in seconds) MCTS is allowed to round
+budget = 1
+
 """
     Monte Carlo Tree Search:
 
-
+    Includes modules for game tree as well as the agent class
 
 
 
@@ -23,26 +26,21 @@ budget = .5
 class mctsNode(state.State):
     """
     Class for game tree for MCTS
+
     lastMove = action taken from parent node
     visits = number of times node has been expanded
     score = sum of results based on simulations
     parent = parent node
-    hand = current hand
+    hands = list of hand dictionaries for each player at that point based on sampling
+    depth = depth of node in the tree, used for testing purposes
+    idx = idx of agent
+    whosTurn =  id of player to move
 
     """
-    # remove Agent inheritance just use state
+
     def __init__(self, playedCards, whosTurn, hands, idx, lastMove, depth,
                 topCard=None, lastPlayed=None, finished=[], parent = None, score=0.):
-        """
-        lastMove =  action from parent Node, None for the root node
-        children =  list of all child nodes
-        visits  =  number of time node has been visited
-        whosTurn =  id of player to move
-        hands =  list of hand dictionaries for each player
-        idx = idx of agent
-        t
 
-        """
         self.lastMove = lastMove
         self.depth = depth
         self.visits = 1.
@@ -82,7 +80,13 @@ class mctsNode(state.State):
     def addAllChildren(self, actions):
         for action in actions:
             self.addChild(action)
+"""
 
+    Agent Class for MCTS agent. Contains functions for each major stage of the
+    algorithm.
+
+
+"""
 
 class mctsAgent(agent.Agent):
 
@@ -98,7 +102,7 @@ class mctsAgent(agent.Agent):
         return sorted_children[-1]
 
 
-    # returns node selected by tree policy
+    # returns node selected by tree policy, includes the expansion of the tree
     def selection(self, root):
         numDone = len(root.finished)
         if root.children == []:
@@ -146,7 +150,6 @@ class mctsAgent(agent.Agent):
 
     # updates all nodes up to the root based on result of simulation
     def backpropagation(self, node, result):
-        #print "entered backpropagation"
         node.visits += 1
         node.score += result
         if node.parent == None:
@@ -161,8 +164,9 @@ class mctsAgent(agent.Agent):
         if len(actions) == 1:
             #print  actions[0]
             return actions[0]
-        # do the sampling 10 times, then pick most common action
-        for i in xrange(10):
+        # do the sampling x times, then pick most common action
+        x = 10
+        for i in xrange(x):
             time_start = time.time()
             cardsLeft = cards.diff(cards.allCards(), [state.playedCards, self.hand])
             otherRemaining = list(state.numRemaining)
@@ -177,12 +181,8 @@ class mctsAgent(agent.Agent):
                 nextNode = self.selection(root)
                 result = self.simulation(nextNode)
                 self.backpropagation(nextNode, result)
-            #print "number of loops", loop_count
+            #print "number of loops", loop_count, used for testing
             sorted_children  = sorted(root.children, key = lambda child: child.score/child.visits)
             res_actions.append(sorted_children[-1].lastMove)
-        #print res_actions
         numActions = Counter(res_actions).most_common()
         return numActions[0][0]
-        #print "actions and scores", [(child.lastMove, child.score) for child in root.children]
-        #bestKid = sorted_children[-1]
-        #return bestKid.lastMove

@@ -16,18 +16,11 @@ gm = game.Game([mcts.mctsAgent] + [dummyAgent.DummyAgent for i in xrange(4)])
 for agent in gm.agents:
     print sum(k*v for k, v in agent.hand.items()),
     print agent.hand
-print gm.playGame(verbose = True)"""
-
-
-
-numGames = 50
+print gm.playGame(verbose = True)
+"""
+numGames = 30
 numPlayers = 4
 gm = game.Game([mcts.mctsAgent] + [dummyAgent.DummyAgent for i in xrange(numPlayers - 1)])
-#for agent in gm.agents:
-#    print sum(k*v for k, v in agent.hand.items()),
-#    print agent.hand
-#print gm.playGame(verbose=True)
-#print gm.agents[0].nodeList
 res = gm.playMultGames(verbose=False, n=numGames)
 print '-------------------------------------------'
 #print 'Average nodes expanded after {0} games: {1:.5}'.format(numGames, sum(gm.agents[0].nodeList) / float(numGames))
