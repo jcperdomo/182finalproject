@@ -71,24 +71,6 @@ class State(object):
         else:
             return False
 
-    def getDonePlayers(self):
-        """Returns list of player indices who have played all their cards.
-        :returns: List of player indices who are out of cards.
-        """
-        initHandSize = 52 / self.numPlayers
-        usedAll = [sum(played.values()) == initHandSize
-                     for played in self.playedCards]
-        return [i for i, ua in enumerate(usedAll) if ua]
-
-    def heuristic(self):
-        scores = [0] * self.numPlayers
-        for idx, player in enumerate(self.finished):
-            scores[player] += 20 - idx 
-
-        for player, handsize in enumerate(self.numRemaining):
-            scores[player] += 13 - handsize
-        return scores
-
     def isInitialState(self):
         """Returns True if this is the first play of the game, i.e., all
         playedCards entries are empty.

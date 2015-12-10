@@ -1,3 +1,10 @@
 **/.DS_Store 
 **/*.swp
 **/*.pyc
+**/*.log
+**/*.fls
+**/*.aux
+**/*.fdb_latexmk
+**/*.pdf
+**/*.synctex
+**/*LatexianTemp*

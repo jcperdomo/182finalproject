@@ -13,7 +13,6 @@ class RLAgent(agent.Agent):
         """Initialization for the Dummy Agent."""
         super(RLAgent, self).__init__(idx, hand)
         self.q = Counter()
-        #self.epsilon=0.05
         self.discount=0.25
         self.alpha=0.05
         self.episodes = 1
@@ -100,23 +99,17 @@ class RLAgent(agent.Agent):
             bestAct = max(bestAct, (self.getQValue(nextState, aprime)))
         delta += self.discount * bestAct
         self.q[(reducedState, reducedAction)] = q + self.alpha * delta
-        #print self.q
 
     def makeMove(self, state):
         act = self.getAction(state)
         nextState = state.getChild(act)
         player = state.whosTurn
-#        oldNum = state.numRemaining[player]
         newNum = nextState.numRemaining[player]
         reward = 0
         if newNum == 0:
-            #if len(nextState.finished) == 0:
-            #    reward = 100
-            #elif len(nextState.finished) == 1:
-            #    reward = 50
             ratio = 1. / (len(nextState.finished) + 1)
             reward = ratio * 50
-        self.update(state, act, nextState, reward) 
+        self.update(state, act, nextState, reward)
         return act
 
     def reduceState(self, state):
@@ -133,8 +126,6 @@ class RLAgent(agent.Agent):
         med += entry[3] + entry[4] + entry[5]
         high += entry[6] + entry[7] + entry[8]
         highest += entry[9] + entry[10] + entry[11] + entry[12]
-    #        numTwos += entry[12]
-            #score += (state.playedCards[0][entry] * entry)
         return (low, med, high, highest, state.numRemaining[player] - min(state.numRemaining))
 
     def reduceAction(self, action):

@@ -81,7 +81,6 @@ def maxN(node, agents, d, maxDepth):
                   for i in xrange(node.numPlayers)]
         return ((0, -1), places)
     # if at max depth, see which move minimizes cards remaining
-    # TODO: improve the heuristic
     if d >= maxDepth:
         bestAct = (0, -1)
         bestVal = [heuristic(node, p) for p in agents]

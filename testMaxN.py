@@ -1,10 +1,15 @@
 import game, maxN, dummyAgent
 
-numGames = 10
+numGames = 50
 numPlayers = 4
-gm = game.Game([maxN.MaxNAgent] + [dummyAgent.DummyAgent for i in xrange(numPlayers-1)])
+gm = game.Game(
+    [
+        dummyAgent.DummyAgent, dummyAgent.DummyAgent,
+        dummyAgent.DummyAgent, maxN.MaxNAgent
+    ]
+)
 
-res = gm.playMultGames(verbose=False, n=numGames)
+res = gm.playMultGames(verbose=True, restarts=10, n=numGames)
 rankings = [sum(r.index(p) for r in res) for p in xrange(numPlayers)]
 
 print '--------------------------------'
