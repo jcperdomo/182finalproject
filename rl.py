@@ -15,7 +15,7 @@ class RLAgent(agent.Agent):
         self.q = Counter()
         #self.epsilon=0.05
         self.discount=0.9
-        self.alpha=0.4
+        self.alpha=0.9
         self.episodes = 1
 
     def getQValue(self, state, action):
@@ -66,7 +66,7 @@ class RLAgent(agent.Agent):
         if len(possActions) == 0:
             return (0, -1)
         r = random.random()
-        if r > (30 / float(self.episodes)):
+        if r > (5 / float(self.episodes)):
             r2 = random.random()
             if r2 > 0.5:
                 if state.topCard == None:
@@ -110,7 +110,7 @@ class RLAgent(agent.Agent):
             ratio = 1 /float(len(nextState.finished))
             reward = ratio * 20
         else:
-            reward = 0
+            reward = -1
         self.update(state, act, nextState, reward) 
         return act
 
@@ -122,11 +122,11 @@ def reduceState(state):
     med = 0
     low = 0
     score = 0
-    for entry in state.playedCards:
-#        low += entry[0] + entry[1] + entry[2]
-#        med += entry[3] + entry[4] + entry[5]
-#        high += entry[5] + entry[7] + entry[8]
-        highest += entry[9] + entry[10] + entry[11]
-        numTwos += entry[12]
+    for entry in state.playedCards[0]:
+        low += entry[0] + entry[1] + entry[2]
+        med += entry[3] + entry[4] + entry[5]
+        high += entry[5] + entry[7] + entry[8]
+        highest += entry[9] + entry[10] + entry[11] + entry[12]
+#        numTwos += entry[12]
         #score += (state.playedCards[0][entry] * entry)
-    return (numTwos, state.numRemaining[player], state.numRemaining[player] - min(state.numRemaining))
+    return (low, med, high, highest, state.numRemaining[player] - min(state.numRemaining))

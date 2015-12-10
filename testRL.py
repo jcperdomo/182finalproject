@@ -2,7 +2,7 @@ import game, dummyAgent, rl
 import operator
 import matplotlib.pyplot as plt
 
-numGames = 200
+numGames = 50
 numEpisodes = 300
 numPlayers = 4
 gm = game.Game([rl.RLAgent] + [dummyAgent.DummyAgent for i in xrange(numPlayers - 1)])
@@ -13,7 +13,7 @@ gm = game.Game([rl.RLAgent] + [dummyAgent.DummyAgent for i in xrange(numPlayers 
 res = []
 scores = []
 for i in xrange(numEpisodes):
-    curr = gm.playMultGames(superVerbose=False, n=numGames)
+    curr = gm.playMultGames(superVerbose=False, restarts=10, n=numGames)
     scores.append(round(sum([r.index(0) for r in curr]) / float(numGames), 5))
     res += curr
     print 'Finishing episode {0} with scores of {1}'.format(gm.agents[0].episodes, map(lambda x: round(x/float(numGames), 3), [sum(r.index(p) for r in curr) for p in xrange(numPlayers)]))
@@ -26,7 +26,7 @@ for player in xrange(numPlayers):
         print 'Player {0}: {1:.5}'.format(player, rankings[player]/float(numGames * numEpisodes)),
 print ""
 #print gm.agents[0].q
-lastEpisodes = 10
+lastEpisodes = 50
 print '--------------------------------------------------'
 print 'Average rankings in last {0} episodes of {1} games'.format(lastEpisodes, numGames)
 print '--------------------------------------------------'
@@ -34,5 +34,14 @@ last = [sum(res[i].index(p) for i in range(len(res) - 1, len(res) - numGames * l
 for player in xrange(numPlayers):
         print 'Player {0}: {1:.5}'.format(player, last[player]/float(numGames * lastEpisodes)),
 
+def moving_average(a, n=10):
+    ret = sum(a)
+    ret[n:] = ret[n:] - ret[:-n]
+    return ret[n - 1:] / float(n)
+
 plt.plot(scores)
 plt.show()
+plt.plot(moving_average(scores))
+plt.show()
+
+

@@ -75,19 +75,25 @@ def paranoid (state, depth, agents, a, b):
     player = agents[state.whosTurn]
     #nodesExpanded += 1
     if state.isFinalState():
-        heu = state.heuristic()
         # Assume all players are playing against the max agent
-        return a, heu[0] - sum(heu[1:])
+        places = [5*node.numPlayers - node.finished.index(i)
+                              for i in xrange(node.numPlayers)]
+        pl = places.pop(player.idx)
+        return ((0, -1), pl - sum(places))
 
-    if depth > 3 * state.numPlayers: #nodesExpanded >= 500: #depth >= 2:
+    if depth > 2 * state.numPlayers: #nodesExpanded >= 500: #depth >= 2:
         bestVal = [heuristic(state, p) for p in agents]
+        playerBest = bestVal.pop(player.idx)
+        best = playerBest - sum(bestVal)
         for action in player.getAllActions(state):
             child = state.getChild(action)
             childVal = [heuristic(state, p) for p in agents]
-            if childVal[player.idx] > bestVal[player.idx]:
+            cB = childVal.pop(player.idx)
+            childBest = cB - sum(childVal)
+            if childBest > best:
                 act = action
-                bestVal = childVal
-        return act, bestVal[0] - sum(bestVal[1:])
+                best = childBest
+        return act, best
 
     # The max player
     if state.whosTurn == 0:
