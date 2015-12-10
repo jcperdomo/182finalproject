@@ -9,7 +9,7 @@ gm = game.Game([dummyAgent.DummyAgent for i in xrange(numPlayers)])
     #print agent.hand
 #print gm.playGame(verbose=True)
 res = gm.playMultGames(verbose=False, n=numGames)
-rankings = reduce(lambda x, y: map(operator.add, x, y), res)
+rankings = [sum(r.index(p) for r in res) for p in xrange(numPlayers)]
 print '--------------------------------'
 print 'Average rankings after {0} games'.format(numGames)
 print '--------------------------------'
