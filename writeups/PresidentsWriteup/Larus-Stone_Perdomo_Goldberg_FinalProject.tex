@@ -84,6 +84,10 @@ The tricky part is that the game tree is so large that it's impossible to expand
 Something that is very nice about the paranoid algorithm is that since it is so closely related to minimax, $\alpha\beta$ pruning can be built on top of it. After the paranoid evaluation, we return an action and an associated value. This means we can keep track of what we would return from the current node and prune other sibling nodes if they would ever return a value that would not replace our value. When we implemented pruning, we saw a decrease in the number of nodes expanded by the Paranoid algorithm by about 500 nodes on average. Since the Paranoid algorithm expands about 3000 nodes when MAXDEPTH is two rounds, this was a dramatic increase in speed.
 
 \subsection{Max-n}
+
+The second algorithm we implemented was max$^n$. This algorithm adapts minimax to many players by having each player pick the action that maximizes the value to herself in the subsequent state. Values for states are represented by $n$-length tuples, where $n$ is the number of players, and where the $i$th entry in the tuple is the value of that state to player $i$. By contrast, when expanding the game tree in minimax, player 1 assumes the player 2 is minimizing player 1's value of the subsequent state; thus, in max$^n$, there is no ``Min'' agent, and instead every agent is a ``Max'' agent for their own value in the tuple.
+
+
 A clear specification of the algorithm(s) you used and a description
 of the main data structures in the implementation. Include a
 discussion of any details of the algorithm that were not in the

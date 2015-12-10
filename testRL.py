@@ -3,7 +3,7 @@ import operator
 import matplotlib.pyplot as plt
 
 numGames = 50
-numEpisodes = 300
+numEpisodes = 1000
 numPlayers = 4
 gm = game.Game([rl.RLAgent] + [dummyAgent.DummyAgent for i in xrange(numPlayers - 1)])
 #for agent in gm.agents:
