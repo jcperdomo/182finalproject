@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  10 DEC 2015 13:54
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  10 DEC 2015 13:58
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/Users/juanperdomo/SkyDrive/Fall2015/CS182/182finalproject/writeups/PresidentsWriteup/TSWLatexianTemp_000897.tex
-(/Users/juanperdomo/SkyDrive/Fall2015/CS182/182finalproject/writeups/PresidentsWriteup/TSWLatexianTemp_000897.tex
+**/Users/juanperdomo/SkyDrive/Fall2015/CS182/182finalproject/writeups/PresidentsWriteup/TSWLatexianTemp_000907.tex
+(/Users/juanperdomo/SkyDrive/Fall2015/CS182/182finalproject/writeups/PresidentsWriteup/TSWLatexianTemp_000907.tex
 LaTeX2e <2011/06/27>
 Babel <3.9f> and hyphenation patterns for 78 languages loaded.
 (/usr/local/texlive/2013/texmf-dist/tex/latex/base/article.cls
@@ -413,8 +413,8 @@ Now handling font encoding U ...
    defining Unicode char U+2122 (decimal 8482)
    defining Unicode char U+2423 (decimal 9251)
 ))
-No file TSWLatexianTemp_000897.aux.
-\openout1 = `TSWLatexianTemp_000897.aux'.
+No file TSWLatexianTemp_000907.aux.
+\openout1 = `TSWLatexianTemp_000907.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 9.
 LaTeX Font Info:    ... okay on input line 9.
@@ -586,7 +586,7 @@ File: omsppl.fd
 )
 LaTeX Font Info:    Font shape `OMS/ppl/m/n' in size <10.95> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 230.
- [8] (./TSWLatexianTemp_000897.aux) ) 
+ [8] (./TSWLatexianTemp_000907.aux) ) 
 Here is how much of TeX's memory you used:
  4808 strings out of 493315
  69242 string characters out of 6137904
@@ -596,7 +596,7 @@ Here is how much of TeX's memory you used:
  957 hyphenation exceptions out of 8191
  43i,8n,40p,1328b,354s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2013/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/mathpazo/fplmr.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on TSWLatexianTemp_000897.pdf (8 pages, 88005 bytes).
+Output written on TSWLatexianTemp_000907.pdf (8 pages, 88122 bytes).
 PDF statistics:
  60 PDF objects out of 1000 (max. 8388607)
  42 compressed objects within 1 object stream
