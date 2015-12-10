@@ -22,7 +22,7 @@ class ParanoidAgent(agent.Agent):
 
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 1
+        numTrials = 50
         # sample hands several times in parallel
         pool = mp.Pool(numTrials)
         start = time.time()
@@ -76,8 +76,8 @@ def paranoid (state, depth, agents, a, b):
     #nodesExpanded += 1
     if state.isFinalState():
         # Assume all players are playing against the max agent
-        places = [5*node.numPlayers - node.finished.index(i)
-                              for i in xrange(node.numPlayers)]
+        places = [5 * state.numPlayers - state.finished.index(i)
+                              for i in xrange(state.numPlayers)]
         pl = places.pop(player.idx)
         return ((0, -1), pl - sum(places))
 

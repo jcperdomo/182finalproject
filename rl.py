@@ -24,7 +24,7 @@ class RLAgent(agent.Agent):
         Should return 0.0 if we have never seen a state
         or the Q node value otherwise
         """
-        reducedState = reduceState(state)
+        reducedState = self.reduceState(state)
         return self.q[(reducedState, action)]
 
     def computeValueFromQValues(self, state):
@@ -86,7 +86,7 @@ class RLAgent(agent.Agent):
         state = action => nextState and reward transition.
         You should do your Q-Value update here
         """
-        reducedState = reduceState(state)
+        reducedState = self.reduceState(state)
         q = self.getQValue(state, action)
         delta = reward -  q
         possActs = self.getAllActions(nextState)
@@ -114,19 +114,20 @@ class RLAgent(agent.Agent):
         self.update(state, act, nextState, reward) 
         return act
 
-def reduceState(state):
-    player = state.whosTurn
-    numTwos = 0
-    highest = 0
-    high = 0
-    med = 0
-    low = 0
-    score = 0
-    for entry in state.playedCards[0]:
+    def reduceState(self, state):
+        player = state.whosTurn
+        numTwos = 0
+        highest = 0
+        high = 0
+        med = 0
+        low = 0
+        score = 0
+#        for entry in self.hand:
+        entry = self.hand
         low += entry[0] + entry[1] + entry[2]
         med += entry[3] + entry[4] + entry[5]
         high += entry[5] + entry[7] + entry[8]
         highest += entry[9] + entry[10] + entry[11] + entry[12]
-#        numTwos += entry[12]
-        #score += (state.playedCards[0][entry] * entry)
-    return (low, med, high, highest, state.numRemaining[player] - min(state.numRemaining))
+    #        numTwos += entry[12]
+            #score += (state.playedCards[0][entry] * entry)
+        return (low, med, high, highest, state.numRemaining[player] - min(state.numRemaining))
