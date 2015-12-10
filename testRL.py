@@ -2,8 +2,8 @@ import game, dummyAgent, rl
 import operator
 import matplotlib.pyplot as plt
 
-numGames = 50
-numEpisodes = 300
+numGames = 200
+numEpisodes = 2000
 numPlayers = 4
 gm = game.Game([rl.RLAgent] + [dummyAgent.DummyAgent for i in xrange(numPlayers - 1)])
 #for agent in gm.agents:
@@ -13,7 +13,7 @@ gm = game.Game([rl.RLAgent] + [dummyAgent.DummyAgent for i in xrange(numPlayers 
 res = []
 scores = []
 for i in xrange(numEpisodes):
-    curr = gm.playMultGames(superVerbose=False, restarts=10, n=numGames)
+    curr = gm.playMultGames(superVerbose=False, restarts=20, n=numGames)
     scores.append(round(sum([r.index(0) for r in curr]) / float(numGames), 5))
     res += curr
     print 'Finishing episode {0} with scores of {1}'.format(gm.agents[0].episodes, map(lambda x: round(x/float(numGames), 3), [sum(r.index(p) for r in curr) for p in xrange(numPlayers)]))

@@ -25,7 +25,8 @@ class RLAgent(agent.Agent):
         or the Q node value otherwise
         """
         reducedState = self.reduceState(state)
-        return self.q[(reducedState, action)]
+        reducedAction = self.reduceAction(action)
+        return self.q[(reducedState, reducedAction)]
 
     def computeValueFromQValues(self, state):
         """
@@ -66,7 +67,7 @@ class RLAgent(agent.Agent):
         if len(possActions) == 0:
             return (0, -1)
         r = random.random()
-        if r > (5 / float(self.episodes)):
+        if r < (100 / float(self.episodes)):
             r2 = random.random()
             if r2 > 0.5:
                 if state.topCard == None:
@@ -87,17 +88,18 @@ class RLAgent(agent.Agent):
         You should do your Q-Value update here
         """
         reducedState = self.reduceState(state)
+        reducedAction = self.reduceAction(action)
         q = self.getQValue(state, action)
         delta = reward -  q
         possActs = self.getAllActions(nextState)
         if len(possActs) == 0:
-            self.q[(reducedState,action)] = q + self.alpha * delta
+            self.q[(reducedState, reducedAction)] = q + self.alpha * delta
             return
         bestAct = self.getQValue(nextState, possActs[0])
         for aprime in possActs:
             bestAct = max(bestAct, (self.getQValue(nextState, aprime)))
         delta += self.discount * bestAct
-        self.q[(reducedState, action)] = q + self.alpha * delta
+        self.q[(reducedState, reducedAction)] = q + self.alpha * delta
         #print self.q
 
     def makeMove(self, state):
@@ -126,8 +128,18 @@ class RLAgent(agent.Agent):
         entry = self.hand
         low += entry[0] + entry[1] + entry[2]
         med += entry[3] + entry[4] + entry[5]
-        high += entry[5] + entry[7] + entry[8]
+        high += entry[6] + entry[7] + entry[8]
         highest += entry[9] + entry[10] + entry[11] + entry[12]
     #        numTwos += entry[12]
             #score += (state.playedCards[0][entry] * entry)
         return (low, med, high, highest, state.numRemaining[player] - min(state.numRemaining))
+
+    def reduceAction(self, action):
+        act = 0
+        if action[1] >= 3 and action[1] < 6:
+            act = 1
+        elif action[1] >= 6 and action[1] < 9:
+            act = 2
+        elif action[1] >= 9:
+            act = 3
+        return action[0], act
