@@ -20,23 +20,15 @@ The algorithms we implemented were largely derived from the minimax algorithm we
 
 Research into game playing has been a main focus of members of the artificial intelligence community since the mid 20th century. As mentioned in lecture by Prof. Rush, computer scientists worked on topics such as chess AI as early as 1959 \footnote{Rush, Adversarial Search and Games}. Although research into game playing algorithms might seem like an inefficient investment of resources by talented researchers, breakthroughs in the algorithms and techniques designed for  simple games such as chess or Go have often had repercussions in other fields that have more of a direct impact on society. At their essence, these algorithms work to find solutions to problems in which players compete to maximize their rewards under certain constraints. In the case of Presidents, however, there is the additional complication of having imperfect information as each individual agent must operate without knowing the hands of his opponents. Developments in game playing algorithms for problems like Presidents therefore can provide insights into different real life problems such as auctions in which a number of agents compete to achieve certain goals using incomplete information.\\
 
-<<<<<<< 735bb4bb37d26294dab751bd08291800aabcf33e
-=======
 The first two algorithms discussed in this paper, paranoid and max$^n$ are essentially extensions of the traditional MiniMax algorithm developed by John von Neumann in 1928 \footnote{Kjeldsen, John von Neumann's Conception of the Minimax Theorem: A Journey Through Different Mathematical Contexts}. Since its origins, however, several optimizations have been introduced such as the use of Alpha Beta Pruning to reduce the size of the search space and techniques to deal with imperfect information. Moreover, research into techniques to deal with uncertainty has become a hall mark of 21st century computer science and artificial intelligence. Conversely to Paranoid and Minimax, Monte Carlo Tree Search has been developed more recently, first appearing in a paper by Remi Coulomb in 2006. Although Monte Carlo methods have their origins in the 1940s and the Manhattan Project, the creation of the MCTS algorithm for games is a 21st century discovery.
 
-
->>>>>>> fucking merge
 \subsection{Rules of Presidents}
 
 The rules of the game are simple. The deck is dealt out evenly to all players. The goal of the game is to get rid out of all your cards as quickly as possible. In order to do so, you can only play cards higher than the current card at the top of the stack. 3's are the lowest cards and 2's are the highest. Once a 2 has been played, the stack is cleared and the player who played it gets to go again. There are a few extra rules. Order of play is decided by the player who has the 3 of clubs and then others play clockwise in the order they are seated. If the stack is clear, a player can choose to play doubles or triples and the players following him must also play higher doubles or triples. A player can choose to pass at any point in the game even if he has legal actions in that state. Lastly, after the game is done, the first two players to finish become President and Vice President and the last two become Asshole and Vice Asshole. For the following round of play, the President has the right to the Assholes' 2 best cards and the VP takes the VA's best card while at the same time handing them back a card of their choice (usually their lowest). The rest of the players don't switch any of their cards.
 
 \section{Related Work}
 
-<<<<<<< 735bb4bb37d26294dab751bd08291800aabcf33e
 During our research into game playing methods for Presidents. We found no algorithms that dealt specifically with the game of presidents, however, we did find research in related fields such as card playing AI agents and agents for games of incomplete information, the most common of which was the popular card game Hearts.  Multiplayer Games, Algorithms and Approaches by Sturtevant was was particularly helpful to learn about extensions of Minimax to multi agent games \cite{sturtevant03b}. Koller's work on imperfect information provided insights into adaptations of traditional game playing agents for scenarios in which there is imperfect information\cite{pfeffer95}. Lastly, papers by Sturtevant and Browne on Max-N, Paranoid, and Monte Carlo Tree Search methods served as guides that led our initial development of the algorithms used\cite{sturtevant03a, browne12}.
-=======
-During our research into game playing methods for Presidents. We found no algorithms that dealt specifically with the game of presidents, however, we did find research in related fields such as card playing AI agents and agents for games of incomplete information.  Multiplayer Games, Algorithms and Approaches by Sturtevant was was particularly helpful to learn about extensions of Minimax to multi agent games. Koller's work on imperfect information provided insights into adaptations of traditional game playing agents for scenarios in which there is imperfect information. Lastly, papers by Sturtevant and Browne on Max$^n$, Paranoid, and Monte Carlo Tree Search methods served as guides that led our initial development of the algorithms used.
->>>>>>> fucking merge
 
 
 \section{Overview of Algorithms}
@@ -121,6 +113,7 @@ Similarly to paranoid, the game tree is far too large to search to exhaustion, s
     \EndIf
     \EndFor
     \State{\Return bestAction, bestVal}
+ \EndProcedure{}
   \end{algorithmic}
   \caption{Pseudocode for Max$^n$ Algorithm}
 \end{algorithm}
@@ -176,36 +169,37 @@ Wrote dummy agents to play lowest legal card--naive algorithm. Baseline to test 
 
 \subsection{Results}
 
- For algorithm-comparison projects: a section reporting empirical comparison results preferably presented graphically.
-
-Table 1: showing time to run on 50 games, average score
-
-Graph 1: Paranoid (5 trials, include error bars)
-
-Bar graph showing: 
-
-Average score for Dummy vs Dummies
-
-Paranoid vs Dummies (sample once, 500 nodes)
-
-Paranoid vs Dummies (sample 5 times, 500 nodes)
-
-Paranoid vs Dummies (sample 25 times, 500 nodes)
-
-Paranoid vs Dummies (sample 25 times, 1500 nodes)
-
-Graph 2: Max-n
-
-Graph 3: MCTS
 \subsubsection{Paranoid}
 
-The paranoid algorithm we implemented did worse than even a basic rule based agent:
+We tested the paranoid agent primarily by playing a single paranoid agent against 3 other dummy agents. Our test parameters were playing 3 sets of 10 games, where each set involved a clean restart. Within each set, the order from the previous game was maintained--the President got the two highest cards from the Asshole etc. The default settings for our paranoid agent were to explore to a depth of 2 * NumPlayers--meaning it would simulate two hands of play. The main parameter that we tried tuning was the number of times the paranoid agent sampled for its opponents' hands. We believed that a more accurate representation of the opposing hands would allow our paranoid agent to make better informed decisions. Here's are the results:
 
 \begin{center}
 \includegraphics[width=\textwidth]{Paranoid.png}
 \end{center}
 
-We hypothesize that there are two main reasons that this happened.
+As can be seen in the graph above, the paranoid algorithm performs a lot worse than an average dummy agent. We hypothesize that there are two main reasons that this happened. First of all, we were unable to devise a good heuristic. Secondly, we didn't handle the imperfect information well enough. The two problems compounded because we were unable to get a good sense of our opponents' hand because we couldn't sample enough, and this led to us having to use our heuristic on fault information. We feel that our paranoid algorithm might have performed better if it were allowed to explore a greater depth and sample more. Finally, a paranoid look at this problem might be the wrong approach. The dummy agents in this game were not out to make one player lose--rather everyone was attempting to win. Therefore, a max-n approach makes more intuitive sense for this problem.
+
+\subsubsection{Max-n}
+
+Similar to the paranoid agent above, we tested the max-n agent by playing a single max-n agent against 3 other dummy agents. We again played 3 sets of 10 games with the same conditions as above. This time, however, we saw a much better performance from the max-n agent as well as a wider variance when conditions were changed.
+
+\begin{center}
+\textbf{Max-n Benchmark Results after 30 Simulations:}\\
+\begin{tabular}{ c|c|c|c } 
+ \hline
+
+  & Number of Hands Sampled & Max Depth & Score  (0-3)\\ 
+\hline
+ 1 & 1 & 1 & \\
+ 2 & 5 & 1 & 1.23\\
+ 3 & 1 & 2 & \\ 
+ 4 & 5 & 2 & 1.6 \\
+
+ \hline
+\end{tabular}
+\end{center}
+
+As mentioned above, we feel that max-n is a much better way of looking at the game than paranoid is. Since each player is out to maximize his/her own score, the max-n heuristic does a much better job of describing the relative strengths of the hands than paranoid does. Again, we see that 
 
 \subsubsection{Monte Carlo Tree Search}
 
