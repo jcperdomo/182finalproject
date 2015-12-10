@@ -1,35 +1,24 @@
- \documentclass[11pt]{article}
+\documentclass[11pt]{article}
 \usepackage{common}
 \usepackage[utf8]{inputenc}
- 
-\pagenumbering{arabic}
 
 \title{Presidents Game Playing Agent}
 \author{Nicholas Larus-Stone \and Juan Perdomo \and Matt Goldberg}
+
+\pagenumbering{arabic}
+
 \begin{document}
 \maketitle{}
 
-
 \section{Introduction}
 
-A description of the purpose, goals, and scope of your system or
-empirical investigation.  You should include references to papers you
-read on which your project and any algorithms you used are
-based. Include a discussion of whether you adapted a published
-algorithm or devised a new one, the range of problems and issues you
-addressed, and the relation of these problems and issues to the
-techniques and ideas covered in the course.
+This paper provides an in-depth investigation of a number of algorithms applied to the multiplayer card game Presidents. The overarching goal of this investigation is to develop an agent that can intelligently play the game and compete against skillful human opponents.   Presidents presents an interesting problem because it is a game involving imperfect information, making it much more difficult to choose an optimal strategy. We first applied two common multiplayer game playing algorithms to this problem: paranoid and max-n \cite{sturtevant03a}. Neither algorithm inherently handles uncertainty, so we had to develop our own methods for dealing with imperfect information. We also investigated more complex algorithms that are better at handling uncertainty: Monte Carlo Tree Search \cite{browne12} and reinforcement learning \cite{fujita03}. Our objective was to apply all of these algorithms to Presidents and determine which one offered us the best performance.\\
 
-This paper provides an in-depth investigation of a number of algorithms applied to the multiplayer card game Presidents. Presidents presents an interesting problem because it is a game involving imperfect information, making it much more difficult to choose an optimal strategy. We first applied two common multiplayer game playing algorithms to this problem: paranoid and max-n \footnote{Sturtevant, 2003}. Neither algorithm inherently handles uncertainty, so we had to develop our own methods for dealing with imperfect information. We also investigated more complex algorithms that are better at handling uncertainty: Monte Carlo Tree Search \footnote{Browne, 2012} and reinforcement learning \footnote{Fujita, 2003}. Our goal was to apply all of these algorithms to Presidents and determine which one offered us the best performance.
-
-The algorithms we implemented were largely derived from the minimax algorithm we talked about in class. However, due to the increased complexity of Presidents, we also had to innovate 
+The algorithms we implemented were largely derived from the minimax algorithm we talked about in class. However, due to the increased complexity of Presidents, we also had to innovate in order to deal with the imperfect information--for this we drew inspiration from our unit on inference and uncertainty. We will first describe how each of the algorithms were implemented, then we will discuss their results and analyze the effectiveness of our implementations to this specific problem. Finally, we will point out some of the areas for further research that our work led us towards.
 
 \section{Background}
 
 Research into game playing has been a main focus of members of the artificial intelligence community since the mid 20th century. As mentioned in lecture by Prof. Rush, computer scientists worked on topics such as chess AI as early as 1959 \footnote{Rush, Adversarial Search and Games}. Although research into game playing algorithms might seem like an inefficient investment of resources by talented researchers, breakthroughs in the algorithms and techniques designed for  simple games such as chess or Go have often had repercussions in other fields that have more of a direct impact on society. At their essence, these algorithms work to find solutions to problems in which players compete to maximize their rewards under certain constraints. In the case of Presidents, however, there is the additional complication of having imperfect information as each individual agent must operate without knowing the hands of his opponents. Developments in game playing algorithms for problems like Presidents therefore can provide insights into different real life problems such as auctions in which a number of agents compete to achieve certain goals using incomplete information.\\
-
-The first two algorithms discussed in this paper, Paranoid and Max-N are essentially extensions of the traditional MiniMax algorithm developed by John von Neumann in 1928 \footnote{Kjeldsen, John von Neumann's Conception of the Minimax Theorem: A Journey Through Different Mathematical Contexts}. Since its origins, however, several optimizations have been introduced such as the use of Alpha Beta Pruning to reduce the size of the search space and techniques to deal with imperfect information. Moreover, research into techniques to deal with uncertainty has become a hall mark of 21st century computer science and artificial intelligence. Conversely to Paranoid and Minimax, Monte Carlo Tree Search has been developed more recently, first appearing in a paper by Remi Coulomb in 2006. Although Monte Carlo methods have their origins in the 1940s and the Manhattan Project, the creation of the MCTS algorithm for games is a 21st century discovery.
-
 
 \subsection{Rules of Presidents}
 
@@ -37,12 +26,12 @@ The rules of the game are simple. The deck is dealt out evenly to all players. T
 
 \section{Related Work}
 
-During our research into game playing methods for Presidents. We found no algorithms that dealt specifically with the game of presidents, however, we did find research in related fields such as card playing AI agents and agents for games of incomplete information.  Multiplayer Games, Algorithms and Approaches by Sturtevant was was particularly helpful to learn about extensions of Minimax to multi agent games. Koller's work on imperfect information provided insights into adaptations of traditional game playing agents for scenarios in which there is imperfect information. Lastly, papers by Sturtevant and Browne on Max-N, Paranoid, and Monte Carlo Tree Search methods served as guides that led our initial development of the algorithms used.
+During our research into game playing methods for Presidents. We found no algorithms that dealt specifically with the game of presidents, however, we did find research in related fields such as card playing AI agents and agents for games of incomplete information, the most common of which was the popular card game Hearts.  Multiplayer Games, Algorithms and Approaches by Sturtevant was was particularly helpful to learn about extensions of Minimax to multi agent games \cite{sturtevant03b}. Koller's work on imperfect information provided insights into adaptations of traditional game playing agents for scenarios in which there is imperfect information\cite{pfeffer95}. Lastly, papers by Sturtevant and Browne on Max-N, Paranoid, and Monte Carlo Tree Search methods served as guides that led our initial development of the algorithms used\cite{sturtevant03a, browne12}.
 
 
 \section{Overview of Algorithms}
 
-Sampling based on cards that haven't been played
+In order to deal with the uncertainty of not knowing which cards 
 
 \subsection{Paranoid}
 
@@ -96,9 +85,6 @@ reader should be able to reconstruct and verify your work from reading
 your paper.
 \subsection{Monte Carlo Tree Search}
 
-
-
-
 The MCTS algorithm is divided into 4 key stages: selection, expansion, simulation, and backpropagation. In selection, a node is chosen starting from the root of the game tree by recursively selecting the most promising child node until a leaf in the tree is reached. After a node has been chosen, the game is played out using a default policy until a result is reached. Lastly, in backpropagation, the result of the playout is incorporated recursively into each node located in the path from the root to the selected child.\\
 
 \begin{algorithm}
@@ -136,31 +122,19 @@ Can test on a number of different axes--time to run, nodes expanded, how it does
 
 \subsection{Methods and Models}
 
-Wrote dummy agents to play lowest legal card--naive algorithm. Baseline to test against that for how good our agents were.
+Since Presidents is a repeated game in which players play multiple rounds, in the game module we wrote a repeated games function that takes in a set of agent and then simulates a predetermined number of games. In particular, we tested rounds of 30 games in which 
 
 \subsection{Results}
+ 
+\subsubsection{Paranoid}
 
- For algorithm-comparison projects: a section reporting empirical comparison results preferably presented graphically.
+The paranoid algorithm we implemented did worse than even a basic rule based agent:
 
-Table 1: showing time to run on 50 games, average score
+\begin{center}
+\includegraphics[width=\textwidth]{Paranoid.png}
+\end{center}
 
-Graph 1: Paranoid (5 trials, include error bars)
-
-Bar graph showing: 
-
-Average score for Dummy vs Dummies
-
-Paranoid vs Dummies (sample once, 500 nodes)
-
-Paranoid vs Dummies (sample 5 times, 500 nodes)
-
-Paranoid vs Dummies (sample 25 times, 500 nodes)
-
-Paranoid vs Dummies (sample 25 times, 1500 nodes)
-
-Graph 2: Max-n
-
-Graph 3: MCTS
+We hypothesize that there are two main reasons that this happened.
 
 \subsubsection{Monte Carlo Tree Search}
 
@@ -200,19 +174,44 @@ In terms of improving MCTS, there is a lot of work that can be done refining the
 
 \section{References}
 
-\begin{enumerate}
-\item Browne, Cameron. A Surver of Monte Carlo Tree Search Methods. IIEEE Transactions on Computational Intelligence and AI in Games. 2012
+\begin{thebibliography}{5}
 
-\item Fujita, Hajime. A reinforcement learning scheme for a multi-agent card game. Systems, Man and Cybernetics. 2003
+\bibitem{sturtevant03a}
+	Sturtevant, Nathan.
+	\emph{Comparison of Algorithms for MultiAgent Games.}
+	Computers and Games.
+	2003
 
-\item Koller, Daphne, and Avi Pfeffer. "Generating and solving imperfect information games." IJCAI. 1995.
+\bibitem{browne12}
+	Browne, Cameron.
+	\emph{A Surver of Monte Carlo Tree Search Methods.}
+	IIEEE Transactions on Computational Intelligence and AI in Games. 
+	2012
 
-\item Sturtevant, Nathan. Comparison of Algorithms for MultiAgent Games. Computers and Games. 2003
+\bibitem{fujita03}
+	Fujita, Hajime.
+	\emph{A reinforcement learning scheme for a multi-agent card game.}
+	Systems, Man and Cybernetics.
+	2003
 
-\item Sturtevant, Nathan. Multi-Player Games: Algorithms and Approaches. 2003
-
-\end{enumerate}
-
+\bibitem{kjeldsen01}
+	Kjeldsen, Tinne Hoff.
+	\emph{John von Neumann’s Conception of the Minimax Theorem: A Journey Through Different Mathematical Contexts}
+	Arch. Hist. Exact Sci.
+	2001
+	
+\bibitem{sturtevant03b}
+	Sturtevant, Nathan.
+	\emph{Multi-Player Games: Algorithms and Approaches.}
+	2003
+	
+\bibitem{pfeffer95}
+	Koller, Daphne, and Pfeffer, Avi.
+	\emph{Generating and solving imperfect information games.}
+	IJCAI.
+	1995
+	
+\end{thebibliography}
 
 \appendix
 
@@ -227,9 +226,11 @@ Appendix 1 – A trace of the program showing how it handles key examples or som
 \section{Group Makeup}
 
 \begin{itemize}
-\item Matt Goldberg - Wrote the state, agent, and game modules that provide the necessary formalisms and rules to encode the game of Presidents. Moreover, implemented the Max-N algorithm.
-\item Nicholas Larus-Stone - Implemented the repeated games function that allows a list of agents to play multiple games. Designed the Paranoid algorithm.
+\item Matt Goldberg - Wrote the state, agent, and game modules that provide the necessary formalisms and rules to encode the game of Presidents. Also implemented the Max-N algorithm.
+\item Nicholas Larus-Stone - Implemented the repeated games function that allows a list of agents to play multiple games. Implemented the Paranoid algorithm and the RL algorithm.
 \item Juan Perdomo-  Implemented the formalisms necessary to implement the MCTS algorithm as well as implemented the algorithm itself.
+
+All contributed equally to this writeup.
 \end{itemize}
 
 

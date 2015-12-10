@@ -1,0 +1,19 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Background}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Rules of Presidents}{section.2}% 3
+\BOOKMARK [1][-]{section.3}{Related Work}{}% 4
+\BOOKMARK [1][-]{section.4}{Overview of Algorithms}{}% 5
+\BOOKMARK [2][-]{subsection.4.1}{Paranoid}{section.4}% 6
+\BOOKMARK [3][-]{subsubsection.4.1.1}{Pruning}{subsection.4.1}% 7
+\BOOKMARK [2][-]{subsection.4.2}{Max-n}{section.4}% 8
+\BOOKMARK [2][-]{subsection.4.3}{Monte Carlo Tree Search}{section.4}% 9
+\BOOKMARK [1][-]{section.5}{Experiments}{}% 10
+\BOOKMARK [2][-]{subsection.5.1}{Methods and Models}{section.5}% 11
+\BOOKMARK [2][-]{subsection.5.2}{Results}{section.5}% 12
+\BOOKMARK [3][-]{subsubsection.5.2.1}{Paranoid}{subsection.5.2}% 13
+\BOOKMARK [3][-]{subsubsection.5.2.2}{Monte Carlo Tree Search}{subsection.5.2}% 14
+\BOOKMARK [2][-]{subsection.5.3}{Discussion}{section.5}% 15
+\BOOKMARK [1][-]{section.6}{References}{}% 16
+\BOOKMARK [1][-]{appendix.A}{Program Trace}{}% 17
+\BOOKMARK [1][-]{appendix.B}{System Description}{}% 18
+\BOOKMARK [1][-]{appendix.C}{Group Makeup}{}% 19

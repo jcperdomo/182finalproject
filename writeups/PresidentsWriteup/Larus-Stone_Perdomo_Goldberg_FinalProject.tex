@@ -12,7 +12,7 @@
 
 \section{Introduction}
 
-This paper provides an in-depth investigation of a number of algorithms applied to the multiplayer card game Presidents. Presidents presents an interesting problem because it is a game involving imperfect information, making it much more difficult to choose an optimal strategy. We first applied two common multiplayer game playing algorithms to this problem: paranoid and max-n \cite{sturtevant03a}. Neither algorithm inherently handles uncertainty, so we had to develop our own methods for dealing with imperfect information. We also investigated more complex algorithms that are better at handling uncertainty: Monte Carlo Tree Search \cite{browne12} and reinforcement learning \cite{fujita03}. Our goal was to apply all of these algorithms to Presidents and determine which one offered us the best performance.
+This paper provides an in-depth investigation of a number of algorithms applied to the multiplayer card game Presidents. The overarching goal of this investigation is to develop an agent that can intelligently play the game and compete against skillful human opponents.   Presidents presents an interesting problem because it is a game involving imperfect information, making it much more difficult to choose an optimal strategy. We first applied two common multiplayer game playing algorithms to this problem: paranoid and max-n \cite{sturtevant03a}. Neither algorithm inherently handles uncertainty, so we had to develop our own methods for dealing with imperfect information. We also investigated more complex algorithms that are better at handling uncertainty: Monte Carlo Tree Search \cite{browne12} and reinforcement learning \cite{fujita03}. Our objective was to apply all of these algorithms to Presidents and determine which one offered us the best performance.\\
 
 The algorithms we implemented were largely derived from the minimax algorithm we talked about in class. However, due to the increased complexity of Presidents, we also had to innovate in order to deal with the imperfect information--for this we drew inspiration from our unit on inference and uncertainty. We will first describe how each of the algorithms were implemented, then we will discuss their results and analyze the effectiveness of our implementations to this specific problem. Finally, we will point out some of the areas for further research that our work led us towards.
 
@@ -122,31 +122,10 @@ Can test on a number of different axes--time to run, nodes expanded, how it does
 
 \subsection{Methods and Models}
 
-Wrote dummy agents to play lowest legal card--naive algorithm. Baseline to test against that for how good our agents were.
+Since Presidents is a repeated game in which players play multiple rounds, in the game module we wrote a repeated games function that takes in a set of agent and then simulates a predetermined number of games. In particular, we tested rounds of 30 games in which 
 
 \subsection{Results}
-
- For algorithm-comparison projects: a section reporting empirical comparison results preferably presented graphically.
-
-Table 1: showing time to run on 50 games, average score
-
-Graph 1: Paranoid (5 trials, include error bars)
-
-Bar graph showing: 
-
-Average score for Dummy vs Dummies
-
-Paranoid vs Dummies (sample once, 500 nodes)
-
-Paranoid vs Dummies (sample 5 times, 500 nodes)
-
-Paranoid vs Dummies (sample 25 times, 500 nodes)
-
-Paranoid vs Dummies (sample 25 times, 1500 nodes)
-
-Graph 2: Max-n
-
-Graph 3: MCTS
+ 
 \subsubsection{Paranoid}
 
 The paranoid algorithm we implemented did worse than even a basic rule based agent:
