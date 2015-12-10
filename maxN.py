@@ -27,9 +27,9 @@ class MaxNAgent(agent.Agent):
 
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 20
+        numTrials = 5
         # sample hands several times in parallel
-        pool = mp.Pool(mp.cpu_count()-1)
+        pool = mp.Pool(mp.cpu_count())
         start = time.time()
         inputs = [
             (trial, node, self.idx, self.hand) for trial in xrange(numTrials)
@@ -77,7 +77,7 @@ def maxN(node, agents, d, maxDepth):
     """
     player = agents[node.whosTurn]
     if node.isFinalState():
-        places = [3*node.numPlayers - node.finished.index(i)
+        places = [5*node.numPlayers - node.finished.index(i)
                   for i in xrange(node.numPlayers)]
         return ((0, -1), places)
     # if at max depth, see which move minimizes cards remaining

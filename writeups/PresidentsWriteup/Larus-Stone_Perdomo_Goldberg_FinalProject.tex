@@ -1,5 +1,6 @@
-\documentclass[11pt]{article}
+ \documentclass[11pt]{article}
 \usepackage{common}
+
 \title{Presidents Game Playing Agent}
 \author{Nicholas Larus-Stone \and Juan Perdomo \and Matt Goldberg}
 \begin{document}
@@ -22,14 +23,22 @@ This paper provides an in-depth investigation of a number of algorithms applied 
 
 \section{Background}
 
-Motivation for AI research into games. History of research into two player games. Extensions to multiplayer games, reasoning under uncertainty.
+Research into game playing has been a main focus of members of the artificial intelligence community since the mid 20th century. As mentioned in lecture by Prof. Rush, computer scientists worked on topics such as chess AI from 1959 \footnote{Rush, Adversarial Search and Games}. Although research into game playing algorithms might seem like an inefficient investment of resources by talented researchers, breakthroughs in the algorithms and techniques designed for  simple games such as chess or Go have often had repercussions in other fields that have more direct impact on society. At their essence, these algorithms work to find solutions to problems in which players compete to maximize their rewards under certain constraints. In the case of Presidents, however, there is the additional complication of having imperfect information as each individual agent must operate without knowing the hands of his opponents.Developments in game playing algorithms for problems like Presidents therefore can provide insights into different real life problems such as auctions, elections, AND X in which a number of agents compete to achieve certain goals using incomplete information.  \\
+
+The first two algorithms discussed in this paper, Paranoid and Max-N are essentially extensions of the traditional MiniMax algorithm developed by John von Neumann in 1928 \footnote{Kjeldsen, John von Neumann's Conception of the Minimax Theorem: A Journey Through Different Mathematical Contexts}. Since its origins, however, several optimizations have been introduced such as the use of Alpha Beta Pruning to reduce the size of the search space and techniques to deal with imperfect information. Moreover, research into techniques to deal with uncertainty has become a hall mark of 21st century computer science and artificial intelligence. Conversely to Paranoid and Minimax, Monte Carlo Tree Search has been developed more recently, first appearing in a paper by Remi Coulomb in 2006. Although Monte Carlo methods have their origins in the 1940s and the Manhattan Project, the creation of the MCTS algorithm for games is a 21st century discovery.
+
+
+http://www.theoremoftheday.org/Docs/Kjeldsen.pdf, Gray
+
 
 \section{Related Work}
+
+During our research into game playing methods for Presidents. We found no algorithms that dealt specifically with the game of presidents, however, we did find research in related fields such as card playing AI agents and agents for games of incomplete information.  Multiplayer Games, Algorithms and Approaches by Sturtevant was was particularly helpful to learn about extensions of Minimax to multi agent games. Koller's work on imperfect information provided insights into adaptations of traditional game playing agents for scenarios in which there is imperfect information. Lastly, papers by Fujita and Browne on Reinforcement Learning agents and Monte Carlo Tree Search methods served as guides that led our initial development of the algorithms used.
 
 For instance, \cite{hochreiter1997long}.
 
 
-\section{Body 1}
+\section{Overview of Algorithms}
 
 Sampling based on cards that haven't been played
 
@@ -45,7 +54,9 @@ Standard a-b pruning works here
 
 \subsection{Max-n}
 
-\subsection{MCTS}
+\subsection{fasdfa}
+
+\subsection{Monte Carlo Tree Search}
 
 A clear specification of the algorithm(s) you used and a description
 of the main data structures in the implementation. Include a
@@ -54,18 +65,36 @@ published paper(s) that formed the basis of your implementation. A
 reader should be able to reconstruct and verify your work from reading
 your paper.
 
+
+
+The MCTS algorithm is divided into 4 key stages: selection, expansion, simulation, and backpropagation. In selection, a node is chosen starting from the root of the game tree by recursively selecting the most promising child node until a leaf in the tree is reached. After a node has been chosen, the game is played out using a default policy until a result is reached. Lastly, in backpropagation, the result of the playout is incorporated recursively into each node located in the path from the root to the selected child.\\
+
+\begin{algorithm}
+  \begin{algorithmic}
+    \Procedure{MCTS}{state}
+	\State{root $\gets$ mctsNode(state)}
+	\While{budget}
+	 \State{nextNode $\gets$ selection(root)}
+	 \State{$result \gets simulation(nextNode)$}
+	\State{backpropagate(nextNode, result)}
+	\EndWhile{}
+   \State{action $\gets$ bestChild(root)}
+\State{return action}
+    \EndProcedure{}
+  \end{algorithmic}
+  \caption{Pseudocode for Monte Carlo Tree Search}
+\end{algorithm}
+
+In the context of Presidents, a separate tree data structure to the state formalism had to be developed in order to implement MCTS. Each node in the tree contained variables describing the number of times each node had been visited as well as the score of the node. Moreover, each node contained a list of hands for each player and the id of the player whose turn it was to play. Since the hands of the other players in the game are unknown, when instantiating the tree, hands had to be sampled for the other agents in the game based on the sizes of each player's hand and the set of cards yet to be played. Each child node corresponded to the actions the player whose turn it was could make based on his hand and the top card on the deck. Scores were defined as the finishing position of the agent in the game. Since higher scores are better, we took the inverse of the finishing rank to indicate the score.\\
+
+In the selection stage, we used the UCT algorithm developed by Kocsis and Szepesvari discussed by Browne in his paper on MCTS methods. It takes into account exploration and exploitation of paths down the tree by weighing the score of each node and the number of times it and its parent had been visited. Once a node is selected, the tree is expanded to include the children of that node and one of the child nodes is selected at random. In simulation, a game was played out based one the hands of each player at that node. Finally, in the backpropagragation stage the normalized score (raw score divided by number of visits) is sent up the tree to the node updating the values of each node along the way. This is run until a predetermined budget is used up, which in this case we chose to be time. After the time ran out, the agent made a move based on the child of the action with the best score.
+
+
+
 \section{Body 2}
 
 Unsure if we want this?
 
-\begin{algorithm}
-  \begin{algorithmic}
-    \Procedure{MyAlgorithm}{$b$}
-    \State{$a \gets 10$}
-    \EndProcedure{}
-  \end{algorithmic}
-  \caption{Here is the algorithm.}
-\end{algorithm}
 
 
 
@@ -121,9 +150,13 @@ Graph 2: Max-n
 Graph 3: MCTS
 
 \subsection{Discussion}
+Overall, there are optimizations to be made in the approach to solving the constraint of imperfect information. As of now, the sampling of hands is done uniformly for each player. However, in the game of presidents, since the president and the asshole switch hands it is more likely that the asshole have a worse hand than the secretary,who didn't switch any cards, and that the secretary in turn have a worse hand than the president. This issue could be approached in several ways.\\
 
-How we could improve. How important the heuristic was. RL and some of the challenges (discretizing state space)
+The first way would be to estimate the average hand strength of each respective player rank at each point in the game and then sample hands for that player based on that average. After playing a large number of games, we could infer the distribution for the hands of each depending on how many cards they have and then sample from that distribution. One major issue with this approach is that it is blind to past behavior of each agent. An agent could have been playing high cards all through the game and then be left with just low cards. However, the distribution for the player's hand at that point in the game could still be very high giving the player an unrealistic set of cards.\\
 
+ The second way to approach the problem would be to create a filtering algorithm that estimates the current hand strength based on the history of play of the player. Each card played would be considered an emission and the hidden states would be the players hands after each time it plays. The trouble in this approach would be estimating the transition probabilities between hidden states as well as the emission probabilities for the played cards. Emissions are not independent for example of the top card on the deck. Also, it is not clear whether playing a high card means your next state is weaker or stronger. If for example, an agent plays a 2 and gets to go again (this is a rule of the game), he might: 1) have another 2 and a low card which menas he has the chance to win, or 2) he might be left with a 3 and be forced to pass for the next rounds.\\
+
+In terms of improving MCTS, there is a lot of work that can be done refining the different parameter values. The performance of the algorithm is dependent on how well it selects nodes in the tree and then expands them. This exploration is regulated by means of a constant that can be altered. Moreover, the time budged can be changed to that it expands more of the tree. By optimizing the values for these two parameters, one can increase the efficiency of the algorithm and the quality of the actions taken.
 \appendix
 
 \section{Program Trace}
@@ -136,10 +169,11 @@ Appendix 1 – A trace of the program showing how it handles key examples or som
 
 \section{Group Makeup}
 
- Appendix 3 – A list of each project participant and that
-participant’s contributions to the project. If the division of work
-varies significantly from the project proposal, provide a brief
-explanation.  Your code should be clearly documented. 
+\begin{itemize}
+\item Matt Goldberg - Wrote the state, agent, and game modules that provide the necessary formalisms and rules to encode the game of Presidents. Moreover, implemented the Max-N algorithm.
+\item Nicholas Larus-Stone - Implemented the repeated games function that allows a list of agents to play multiple games. Designed the Paranoid algorithm.
+\item Juan Perdomo-  Implemented the formalisms necessary to implement the MCTS algorithm as well as implemented the algorithm itself.
+\end{itemize}
 
 
 

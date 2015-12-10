@@ -8,7 +8,8 @@ import time, sys
 from math import sqrt, log
 
 # constant used to gauge level of exploration in node selection
-c = 1/sqrt(2)
+c = 100
+budget = 10
 """
     Monte Carlo Tree Search:
 
@@ -29,7 +30,7 @@ class mctsNode(state.State):
 
     """
     # remove Agent inheritance just use state
-    def __init__(self, playedCards, whosTurn, hands, idx, lastMove,
+    def __init__(self, playedCards, whosTurn, hands, idx, lastMove, depth,
                 topCard=None, lastPlayed=None, finished=[], parent = None, score=0.):
         """
         lastMove =  action from parent Node, None for the root node
@@ -42,7 +43,8 @@ class mctsNode(state.State):
 
         """
         self.lastMove = lastMove
-        self.visits = 0.
+        self.depth = depth
+        self.visits = 1.
         self.score = score
         self.children = []
         self.parent  = parent
@@ -61,19 +63,17 @@ class mctsNode(state.State):
         newState = curr_state.getChild(action)
         if action == agent.PASS:
             newHands = list(self.hands)
-            #print "PASS action top card should be the same", newState.topCard
         else:
-            #print "didn't pass", action, newState.topCard
             player_hand  = dict(self.hands[self.whosTurn])
             new_hand = cards.diff(player_hand, {action[1]: action[0]})
             newHands = list(self.hands)
             newHands[self.whosTurn] = new_hand
         score = 0.
-
+        # if agent got rid of cards, initialize score to finishing position
         if self.idx in newState.finished:
             score = (newState.finished.index(self.idx) + 1) ** -1
-        newNode = mctsNode(newState.playedCards, newState.whosTurn,
-                            newHands, self.idx, action, newState.topCard,
+        newNode = mctsNode(newState.playedCards, newState.whosTurn, newHands,
+                            self.idx, action, self.depth + 1, newState.topCard,
                             newState.lastPlayed, newState.finished, self, score)
         self.children.append(newNode)
 
@@ -91,23 +91,12 @@ class mctsAgent(agent.Agent):
 
     # given a list of nodes, returns best child according to UCT algorithm
     def bestChild(self, children):
-        # added 1 to prevent division by 0 errors
-        sorted_children = sorted(children, key = lambda child: child.score/(child.visits + 1)
+        sorted_children = sorted(children, key = lambda child: child.score / child.visits
                                 + c * sqrt(log(child.parent.visits)/(child.visits + 1)))
         # return best child
         return sorted_children[-1]
-    """
-        every node in the tree, has the hand of the agent, but when you make moves you make them based on the actions
-        of whos turn it is,
-
-        therefore, you need to keep track of the hands of all the player everytime in order to correctly
-        calculate the children for each node, each node needs a list of the current hand for each player
-        probably will update the simulation thing at that point at that point
 
 
-
-
-    """
     # returns node selected by tree policy
     def selection(self, root):
         numDone = len(root.finished)
@@ -123,35 +112,35 @@ class mctsAgent(agent.Agent):
                                 root.topCard, root.lastPlayed, root.finished)
                 testagent = agent.Agent(root.whosTurn, root.hands[root.whosTurn])
                 actions = testagent.getAllActions(curr_state)
-                #print "hand at current node", root.hands[root.whosTurn]
-                #print "top card", root.topCard, THIS IS RIGHT
-                #print "actions", actions
                 root.addAllChildren(actions)
                 selected_child = random.choice(root.children)
                 return selected_child
         else:
             return self.selection(self.bestChild(root.children))
 
-
-    # given a node, plays out game using the default policy returning a score for the node
+    """
+        given a node, plays out game using the default policy returning a
+        (normalized) score for that node
+    """
     def simulation(self, node):
-        start = time.time()
+        #start = time.time()
         # if agent's hand is empty return score
         if cards.empty(node.hands[self.idx]):
-            return node.score
-        count = 0
-        for i in range(node.numPlayers):
-            if cards.empty(node.hands[i]):
-                count += 1
-        if count == node.numPlayers - 1:
-            return (node.numPlayers + 1) ** -1
-        agents = [dummyAgent.DummyAgent for i in xrange(node.numPlayers)]
-        gm = game.Game(agents, node.hands, node.playedCards, node.whosTurn,
-                       node.topCard, node.lastPlayed, node.finished)
-        results = gm.playGame()
-        end = time.time() - start
-        #print "time in simulation", end
-        return (results.index(self.idx) + 1) ** -1
+            return node.score / node.visits
+        else:
+            count = 0
+            for i in range(node.numPlayers):
+                if cards.empty(node.hands[i]):
+                    count += 1
+            if count == node.numPlayers - 1:
+                return (node.numPlayers + 1) ** -1
+            agents = [dummyAgent.DummyAgent for i in xrange(node.numPlayers)]
+            gm = game.Game(agents, node.hands, node.playedCards, node.whosTurn,
+                           node.topCard, node.lastPlayed, node.finished)
+            results = gm.playGame()
+            #end = time.time() - start
+            #print "time in simulation", end
+            return ((results.index(self.idx) + 1) ** -1) / node.visits
 
 
     # updates all nodes up to the root based on result of simulation
@@ -165,32 +154,26 @@ class mctsAgent(agent.Agent):
             self.backpropagation(node.parent,result)
 
     def makeMove(self, state):
+        # if there is just 1 action (PASS), avoid the comptutation
+        actions = self.getAllActions(state)
+        if len(actions) == 1:
+            return actions[0]
         time_start = time.time()
-        time_end  = 1
         cardsLeft = cards.diff(cards.allCards(), [state.playedCards, self.hand])
         otherRemaining = list(state.numRemaining)
         del otherRemaining[self.idx]
         hands = cards.dealHands(cardsLeft , otherRemaining)
         hands.insert(self.idx, dict(self.hand))
         root = mctsNode(state.playedCards, self.idx, hands, self.idx,
-                        None, state.topCard, state.lastPlayed, state.finished)
-        if root.terminal:
-            #print self.hand
-            print self.idx in state.finished
-            #print "thinks state is terminal"
-            return agent.PASS
+                        None, 0, state.topCard, state.lastPlayed, state.finished)
         loop_count = 0
-
-        while time.time() < time_start + time_end:
+        while time.time() < time_start + budget:
             loop_count += 1
             nextNode = self.selection(root)
             result = self.simulation(nextNode)
-            #print "exited simulation"
             self.backpropagation(nextNode, result)
         #print "number of loops", loop_count
-        bestKid = sorted(root.children, key = lambda child: child.score)[-1]
-        #print "possible actions: ", self.getAllActions(state)
-        #print "actions at children", [child.lastMove for child in root.children]
-        #print "chosen action", bestKid.lastMove
-        print state.numRemaining
+        sorted_children  = sorted(root.children, key = lambda child: child.score)
+        print "actions and scores", [(child.lastMove, child.score) for child in root.children]
+        bestKid = sorted_children[-1]
         return bestKid.lastMove
