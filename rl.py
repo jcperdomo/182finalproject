@@ -14,7 +14,7 @@ class RLAgent(agent.Agent):
         super(RLAgent, self).__init__(idx, hand)
         self.q = Counter()
         #self.epsilon=0.05
-        self.discount=0.999
+        self.discount=0.25
         self.alpha=0.05
         self.episodes = 1
 
@@ -67,9 +67,9 @@ class RLAgent(agent.Agent):
         if len(possActions) == 0:
             return (0, -1)
         r = random.random()
-        if r < 10. / self.episodes and self.episodes < 970:
+        if r < 50. / self.episodes and self.episodes < 980:
             r2 = random.random()
-            if r2 > 1.0:
+            if r2 > 0.7:
                 if state.topCard == None:
                     return min(possActions, key=op.itemgetter(1))
                 else:
@@ -116,8 +116,6 @@ class RLAgent(agent.Agent):
             #    reward = 50
             ratio = 1. / (len(nextState.finished) + 1)
             reward = ratio * 50
-        else:
-            reward = 0
         self.update(state, act, nextState, reward) 
         return act
 
