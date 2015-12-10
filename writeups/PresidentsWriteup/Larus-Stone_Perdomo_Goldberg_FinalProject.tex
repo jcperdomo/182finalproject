@@ -20,13 +20,23 @@ The algorithms we implemented were largely derived from the minimax algorithm we
 
 Research into game playing has been a main focus of members of the artificial intelligence community since the mid 20th century. As mentioned in lecture by Prof. Rush, computer scientists worked on topics such as chess AI as early as 1959 \footnote{Rush, Adversarial Search and Games}. Although research into game playing algorithms might seem like an inefficient investment of resources by talented researchers, breakthroughs in the algorithms and techniques designed for  simple games such as chess or Go have often had repercussions in other fields that have more of a direct impact on society. At their essence, these algorithms work to find solutions to problems in which players compete to maximize their rewards under certain constraints. In the case of Presidents, however, there is the additional complication of having imperfect information as each individual agent must operate without knowing the hands of his opponents. Developments in game playing algorithms for problems like Presidents therefore can provide insights into different real life problems such as auctions in which a number of agents compete to achieve certain goals using incomplete information.\\
 
+<<<<<<< 735bb4bb37d26294dab751bd08291800aabcf33e
+=======
+The first two algorithms discussed in this paper, paranoid and max$^n$ are essentially extensions of the traditional MiniMax algorithm developed by John von Neumann in 1928 \footnote{Kjeldsen, John von Neumann's Conception of the Minimax Theorem: A Journey Through Different Mathematical Contexts}. Since its origins, however, several optimizations have been introduced such as the use of Alpha Beta Pruning to reduce the size of the search space and techniques to deal with imperfect information. Moreover, research into techniques to deal with uncertainty has become a hall mark of 21st century computer science and artificial intelligence. Conversely to Paranoid and Minimax, Monte Carlo Tree Search has been developed more recently, first appearing in a paper by Remi Coulomb in 2006. Although Monte Carlo methods have their origins in the 1940s and the Manhattan Project, the creation of the MCTS algorithm for games is a 21st century discovery.
+
+
+>>>>>>> fucking merge
 \subsection{Rules of Presidents}
 
 The rules of the game are simple. The deck is dealt out evenly to all players. The goal of the game is to get rid out of all your cards as quickly as possible. In order to do so, you can only play cards higher than the current card at the top of the stack. 3's are the lowest cards and 2's are the highest. Once a 2 has been played, the stack is cleared and the player who played it gets to go again. There are a few extra rules. Order of play is decided by the player who has the 3 of clubs and then others play clockwise in the order they are seated. If the stack is clear, a player can choose to play doubles or triples and the players following him must also play higher doubles or triples. A player can choose to pass at any point in the game even if he has legal actions in that state. Lastly, after the game is done, the first two players to finish become President and Vice President and the last two become Asshole and Vice Asshole. For the following round of play, the President has the right to the Assholes' 2 best cards and the VP takes the VA's best card while at the same time handing them back a card of their choice (usually their lowest). The rest of the players don't switch any of their cards.
 
 \section{Related Work}
 
+<<<<<<< 735bb4bb37d26294dab751bd08291800aabcf33e
 During our research into game playing methods for Presidents. We found no algorithms that dealt specifically with the game of presidents, however, we did find research in related fields such as card playing AI agents and agents for games of incomplete information, the most common of which was the popular card game Hearts.  Multiplayer Games, Algorithms and Approaches by Sturtevant was was particularly helpful to learn about extensions of Minimax to multi agent games \cite{sturtevant03b}. Koller's work on imperfect information provided insights into adaptations of traditional game playing agents for scenarios in which there is imperfect information\cite{pfeffer95}. Lastly, papers by Sturtevant and Browne on Max-N, Paranoid, and Monte Carlo Tree Search methods served as guides that led our initial development of the algorithms used\cite{sturtevant03a, browne12}.
+=======
+During our research into game playing methods for Presidents. We found no algorithms that dealt specifically with the game of presidents, however, we did find research in related fields such as card playing AI agents and agents for games of incomplete information.  Multiplayer Games, Algorithms and Approaches by Sturtevant was was particularly helpful to learn about extensions of Minimax to multi agent games. Koller's work on imperfect information provided insights into adaptations of traditional game playing agents for scenarios in which there is imperfect information. Lastly, papers by Sturtevant and Browne on Max$^n$, Paranoid, and Monte Carlo Tree Search methods served as guides that led our initial development of the algorithms used.
+>>>>>>> fucking merge
 
 
 \section{Overview of Algorithms}
@@ -72,10 +82,50 @@ The tricky part is that the game tree is so large that it's impossible to expand
 
 Something that is very nice about the paranoid algorithm is that since it is so closely related to minimax, $\alpha\beta$ pruning can be built on top of it. After the paranoid evaluation, we return an action and an associated value. This means we can keep track of what we would return from the current node and prune other sibling nodes if they would ever return a value that would not replace our value. When we implemented pruning, we saw a decrease in the number of nodes expanded by the Paranoid algorithm by about 500 nodes on average. Since the Paranoid algorithm expands about 3000 nodes when MAXDEPTH is two rounds, this was a dramatic increase in speed.
 
-\subsection{Max-n}
+\subsection{Max$^n$}
 
 The second algorithm we implemented was max$^n$. This algorithm adapts minimax to many players by having each player pick the action that maximizes the value to herself in the subsequent state. Values for states are represented by $n$-length tuples, where $n$ is the number of players, and where the $i$th entry in the tuple is the value of that state to player $i$. By contrast, when expanding the game tree in minimax, player 1 assumes the player 2 is minimizing player 1's value of the subsequent state; thus, in max$^n$, there is no ``Min'' agent, and instead every agent is a ``Max'' agent for their own value in the tuple.
 
+Similarly to paranoid, the game tree is far too large to search to exhaustion, so the values are determined by a heuristic similarly. The values of child states are determined as follows: if the search depth exceeds a predefined maximum depth (we found 2 rounds of play to be a good tradeoff between search depth and speed), then the values are determined by a heuristic; if the search expands a tree to a terminal state, then the values are determined by where each player finishes in the game (i.e., coming in first and winning the presidency is better than coming in second and winning the vice presidency).
+
+\begin{algorithm}
+  \begin{algorithmic}
+    \Procedure{MaxN}{state, depth, player}
+    \If{isTerminal(state)}
+      \State{values = evaluate(state)}
+      \State \Return PASS, values
+    \EndIf
+    \If{depth $\geq$ MAXDEPTH}
+      \State{bestAction = PASS}
+      \State{bestVal = evaluate(state)}
+      \State{actions = actions(player, state)}
+      \ForAll{action in actions}
+      \State{child = getChild(state, action)}
+      \State{childVal = evaluate(child)}
+	\If{childVal[player] $>$ bestVal[player]}
+	  \State{bestAction = action}
+	  \State{bestVal = childVal}
+	\EndIf
+      \EndFor
+      \State{\Return bestAction, bestVal}
+    \EndIf
+    \State{bestAction = PASS}
+    \State{bestVal = ($-\infty, \dots, -\infty$)}
+    \State{actions = actions(player, state)}
+    \ForAll{action in actions}
+    \State{child = getChild(state, action)}
+    \State{childAction, childVal = MaxN(child, depth $+1$, next(player))}
+    \If{childVal[player] $>$ bestVal[player]}
+      \State{bestAction = action}
+      \State{bestVal = childVal}
+    \EndIf
+    \EndFor
+    \State{\Return bestAction, bestVal}
+  \end{algorithmic}
+  \caption{Pseudocode for Max$^n$ Algorithm}
+\end{algorithm}
+
+\subsection{Monte Carlo Tree Search}
 
 A clear specification of the algorithm(s) you used and a description
 of the main data structures in the implementation. Include a
@@ -242,13 +292,25 @@ Appendix 1 – A trace of the program showing how it handles key examples or som
 
 \section{System Description}
 
+To actually implement our algorithms, we required a fairly in-depth and systematic description of the game itself. To do this, we created three main modules:
+\begin{itemize}
+  \item \textbf{state.py}. This module contains the State class, which we use to define and instantiate objects representing the state of the game. It contains many attributes relating to game state, such as which cards each player has played so far, the number of players in the game, whos turn it is, the current top card on the stack and who played it, and who has ran out of cards already (and in what order). It also keeps track of how many cards are remaining in each player's hand. This class provides many useful helper functions, such as \verb|getChild|, which 
+  \item \textbf{agent.py}. This module
+  \item \textbf{game.py}. This module
+\end{itemize}
+
  Appendix 2 – A clear description of how to use your system and how to generate the output you discussed in the write-up and the example transcript in Appendix 1. N.B.: The teaching staff must be able to run your system.
 
 \section{Group Makeup}
 
 \begin{itemize}
+<<<<<<< 735bb4bb37d26294dab751bd08291800aabcf33e
 \item Matt Goldberg - Wrote the state, agent, and game modules that provide the necessary formalisms and rules to encode the game of Presidents. Also implemented the Max-N algorithm.
 \item Nicholas Larus-Stone - Implemented the repeated games function that allows a list of agents to play multiple games. Implemented the Paranoid algorithm and the RL algorithm.
+=======
+\item Matt Goldberg - Wrote the state, agent, and game modules that provide the necessary formalisms and rules to encode the game of Presidents. Moreover, implemented the max$^n$ algorithm.
+\item Nicholas Larus-Stone - Implemented the repeated games function that allows a list of agents to play multiple games. Designed the Paranoid algorithm.
+>>>>>>> fucking merge
 \item Juan Perdomo-  Implemented the formalisms necessary to implement the MCTS algorithm as well as implemented the algorithm itself.
 
 All contributed equally to this writeup.
