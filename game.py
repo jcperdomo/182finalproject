@@ -1,7 +1,7 @@
 import collections
 import numpy as np
 import time
-
+import mcts
 import agent
 import cards
 import state
@@ -98,6 +98,8 @@ class Game(object):
             whosTurn = curState.whosTurn
             agentToMove = self.agents[whosTurn]
             # get the move - ask agent for move
+            #if isinstance(agentToMove.makeMove(curState), mcts.mctsNode):
+            #    print "state is mctsNode"
             (numCards, whichCard) = agentToMove.makeMove(curState)
             if verbose:
                 print whosTurn, numCards, cards.cardRepr[whichCard]

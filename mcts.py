@@ -5,11 +5,12 @@ import game
 import dummyAgent
 import cards
 import time, sys
+from collections import Counter
 from math import sqrt, log
 
 # constant used to gauge level of exploration in node selection
-c = 100
-budget = 10
+c = 10
+budget = .5
 """
     Monte Carlo Tree Search:
 
@@ -156,24 +157,32 @@ class mctsAgent(agent.Agent):
     def makeMove(self, state):
         # if there is just 1 action (PASS), avoid the comptutation
         actions = self.getAllActions(state)
+        res_actions = []
         if len(actions) == 1:
+            #print  actions[0]
             return actions[0]
-        time_start = time.time()
-        cardsLeft = cards.diff(cards.allCards(), [state.playedCards, self.hand])
-        otherRemaining = list(state.numRemaining)
-        del otherRemaining[self.idx]
-        hands = cards.dealHands(cardsLeft , otherRemaining)
-        hands.insert(self.idx, dict(self.hand))
-        root = mctsNode(state.playedCards, self.idx, hands, self.idx,
-                        None, 0, state.topCard, state.lastPlayed, state.finished)
-        loop_count = 0
-        while time.time() < time_start + budget:
-            loop_count += 1
-            nextNode = self.selection(root)
-            result = self.simulation(nextNode)
-            self.backpropagation(nextNode, result)
-        #print "number of loops", loop_count
-        sorted_children  = sorted(root.children, key = lambda child: child.score)
-        print "actions and scores", [(child.lastMove, child.score) for child in root.children]
-        bestKid = sorted_children[-1]
-        return bestKid.lastMove
+        # do the sampling 10 times, then pick most common action
+        for i in xrange(10):
+            time_start = time.time()
+            cardsLeft = cards.diff(cards.allCards(), [state.playedCards, self.hand])
+            otherRemaining = list(state.numRemaining)
+            del otherRemaining[self.idx]
+            hands = cards.dealHands(cardsLeft , otherRemaining)
+            hands.insert(self.idx, dict(self.hand))
+            root = mctsNode(state.playedCards, self.idx, hands, self.idx,
+                            None, 0, state.topCard, state.lastPlayed, state.finished)
+            loop_count = 0
+            while time.time() < time_start + budget:
+                loop_count += 1
+                nextNode = self.selection(root)
+                result = self.simulation(nextNode)
+                self.backpropagation(nextNode, result)
+            #print "number of loops", loop_count
+            sorted_children  = sorted(root.children, key = lambda child: child.score/child.visits)
+            res_actions.append(sorted_children[-1].lastMove)
+        #print res_actions
+        numActions = Counter(res_actions).most_common()
+        return numActions[0][0]
+        #print "actions and scores", [(child.lastMove, child.score) for child in root.children]
+        #bestKid = sorted_children[-1]
+        #return bestKid.lastMove
