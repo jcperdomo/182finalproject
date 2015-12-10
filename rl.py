@@ -14,8 +14,8 @@ class RLAgent(agent.Agent):
         super(RLAgent, self).__init__(idx, hand)
         self.q = Counter()
         #self.epsilon=0.05
-        self.discount=0.9
-        self.alpha=0.5
+        self.discount=0.999
+        self.alpha=0.05
         self.episodes = 1
 
     def getQValue(self, state, action):
@@ -67,9 +67,9 @@ class RLAgent(agent.Agent):
         if len(possActions) == 0:
             return (0, -1)
         r = random.random()
-        if r < (10 / float(self.episodes)):
+        if r < 10. / self.episodes and self.episodes < 970:
             r2 = random.random()
-            if r2 > 0.5:
+            if r2 > 1.0:
                 if state.topCard == None:
                     return min(possActions, key=op.itemgetter(1))
                 else:
@@ -110,12 +110,14 @@ class RLAgent(agent.Agent):
         newNum = nextState.numRemaining[player]
         reward = 0
         if newNum == 0:
-            if len(nextState.finished) == 0:
-                reward = 100
-            elif len(nextState.finished) == 1:
-                reward = 50
-            #ratio = 1 /float(len(nextState.finished) + 1)
-            #reward = ratio * 50
+            #if len(nextState.finished) == 0:
+            #    reward = 100
+            #elif len(nextState.finished) == 1:
+            #    reward = 50
+            ratio = 1. / (len(nextState.finished) + 1)
+            reward = ratio * 50
+        else:
+            reward = 0
         self.update(state, act, nextState, reward) 
         return act
 
