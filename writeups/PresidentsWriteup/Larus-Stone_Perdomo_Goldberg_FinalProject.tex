@@ -223,7 +223,9 @@ The first way would be to estimate the average hand strength of each respective 
 
  The second way to approach the problem would be to create a filtering algorithm that estimates the current hand strength based on the history of play of the player. Each card played would be considered an emission and the hidden states would be the player's hands after each time it plays. The trouble in this approach would be estimating the transition probabilities between hidden states as well as the emission probabilities for the played cards. Emissions are not independent of the top card on the deck. Also, it is not clear whether playing a high card means your next state is weaker or stronger. If for example, an agent plays a 2 and gets to go again (this is a rule of the game), he might: 1) have another 2 and a low card which menas he has the chance to win, or 2) he might be left with a 3 and be forced to pass for the next rounds.\\
 
-In terms of improving MCTS, there is a lot of work that can be done refining the different parameter values. The performance of the algorithm is dependent on how well it selects nodes in the tree and then expands them. This exploration is regulated by means of a constant that can be altered. Moreover, the time budged can be changed to that it expands more of the tree. By optimizing the values for these two parameters, one can increase the efficiency of the algorithm and the quality of the actions taken. More importantly however, there are improvements to be made in the simulation of a playout from a node in order to remove the differences between actual and simulated games.
+In terms of improving MCTS, there is a lot of work that can be done refining the different parameter values. The performance of the algorithm is dependent on how well it selects nodes in the tree and then expands them. This exploration is regulated by means of a constant that can be altered. Moreover, the time budged can be changed to that it expands more of the tree. By optimizing the values for these two parameters, one can increase the efficiency of the algorithm and the quality of the actions taken. More importantly however, there are improvements to be made in the simulation of a playout from a node in order to remove the differences between actual and simulated games.\\
+
+Lastly, we wrote a reinforcement learning agent for the game. However, we were unable to get it to work properly. Since the state space is so big (it depends on current, hand, top card, and the hands of every player), it was a challenge to condense the state space to a manageable size. Lastly, work is to be done tuning the parameters for the agent.
 
 \section{References}
 
@@ -270,7 +272,7 @@ In terms of improving MCTS, there is a lot of work that can be done refining the
 
 \section{Program Trace}
 
-Appendix 1 – A trace of the program showing how it handles key examples or some other demonstration of the program in action.
+
 
 \section{System Description}
 
