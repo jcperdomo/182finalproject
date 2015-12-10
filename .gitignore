@@ -8,3 +8,4 @@
 **/*.pdf
 **/*.synctex
 **/*LatexianTemp*
+**/*.out

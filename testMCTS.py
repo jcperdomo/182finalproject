@@ -23,7 +23,6 @@ numPlayers = 4
 gm = game.Game([mcts.mctsAgent] + [dummyAgent.DummyAgent for i in xrange(numPlayers - 1)])
 res = gm.playMultGames(verbose=False, n=numGames)
 print '-------------------------------------------'
-#print 'Average nodes expanded after {0} games: {1:.5}'.format(numGames, sum(gm.agents[0].nodeList) / float(numGames))
 rankings = [sum(r.index(p) for r in res) for p in xrange(numPlayers)]
 print '--------------------------------'
 print 'Average rankings after {0} games'.format(numGames)

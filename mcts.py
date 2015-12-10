@@ -128,7 +128,6 @@ class mctsAgent(agent.Agent):
         (normalized) score for that node
     """
     def simulation(self, node):
-        #start = time.time()
         # if agent's hand is empty return score
         if cards.empty(node.hands[self.idx]):
             return node.score / node.visits
@@ -143,8 +142,6 @@ class mctsAgent(agent.Agent):
             gm = game.Game(agents, node.hands, node.playedCards, node.whosTurn,
                            node.topCard, node.lastPlayed, node.finished)
             results = gm.playGame()
-            #end = time.time() - start
-            #print "time in simulation", end
             return ((results.index(self.idx) + 1) ** -1) / node.visits
 
 
@@ -162,7 +159,6 @@ class mctsAgent(agent.Agent):
         actions = self.getAllActions(state)
         res_actions = []
         if len(actions) == 1:
-            #print  actions[0]
             return actions[0]
         # do the sampling x times, then pick most common action
         x = 10
@@ -181,7 +177,6 @@ class mctsAgent(agent.Agent):
                 nextNode = self.selection(root)
                 result = self.simulation(nextNode)
                 self.backpropagation(nextNode, result)
-            #print "number of loops", loop_count, used for testing
             sorted_children  = sorted(root.children, key = lambda child: child.score/child.visits)
             res_actions.append(sorted_children[-1].lastMove)
         numActions = Counter(res_actions).most_common()
