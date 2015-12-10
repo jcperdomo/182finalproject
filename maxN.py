@@ -27,7 +27,7 @@ class MaxNAgent(agent.Agent):
 
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 5
+        numTrials = 3
         # sample hands several times in parallel
         pool = mp.Pool(mp.cpu_count())
         start = time.time()
@@ -38,7 +38,6 @@ class MaxNAgent(agent.Agent):
         pool.close()
         pool.join()
         allBest = max(bestActions, key=bestActions.get)
-        print allBest, bestActions, '{} seconds'.format(time.time() - start)
         return allBest
 
 
@@ -63,7 +62,7 @@ def simulate(args):
     hands.insert(idx, hand)
     agents = map(lambda (i,h): MaxNAgent(i, h),
                  zip(xrange(node.numPlayers), hands))
-    bestAct, bestVal = maxN(node, agents, 0, 1*node.numPlayers)
+    bestAct, bestVal = maxN(node, agents, 0, 2*node.numPlayers)
     return bestAct
 
 
