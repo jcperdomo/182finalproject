@@ -22,7 +22,7 @@ class ParanoidAgent(agent.Agent):
 
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 50
+        numTrials = 1
         # sample hands several times in parallel
         pool = mp.Pool(numTrials)
         start = time.time()

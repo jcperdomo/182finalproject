@@ -15,7 +15,7 @@ class RLAgent(agent.Agent):
         self.q = Counter()
         #self.epsilon=0.05
         self.discount=0.9
-        self.alpha=0.9
+        self.alpha=0.5
         self.episodes = 1
 
     def getQValue(self, state, action):
@@ -107,10 +107,10 @@ class RLAgent(agent.Agent):
 #        oldNum = state.numRemaining[player]
         newNum = nextState.numRemaining[player]
         if newNum == 0:
-            ratio = 1 /float(len(nextState.finished))
-            reward = ratio * 20
+            ratio = 1 /float(len(nextState.finished) + 1)
+            reward = ratio * 50
         else:
-            reward = -1
+            reward = 0
         self.update(state, act, nextState, reward) 
         return act
 
