@@ -21,7 +21,7 @@ class ParanoidAgent(agent.Agent):
             return allActions[0]
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 30
+        numTrials = 1
         # sample hands several times in parallel
         pool = mp.Pool(numTrials)
         start = time.time()
@@ -83,7 +83,7 @@ def paranoid (state, depth, agents, a, b):
         return a, heu[0] - sum(heu[1:])
         #return ((0, -1), pl - sum(places))
 
-    if depth > 2 * state.numPlayers: #
+    if depth > 3 * state.numPlayers: #
         bestVal = [heuristic(state, p) for p in agents]
         for action in player.getAllActions(state):
             child = state.getChild(action)

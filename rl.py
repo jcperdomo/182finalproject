@@ -67,7 +67,7 @@ class RLAgent(agent.Agent):
         if len(possActions) == 0:
             return (0, -1)
         r = random.random()
-        if r < (100 / float(self.episodes)):
+        if r < (10 / float(self.episodes)):
             r2 = random.random()
             if r2 > 0.5:
                 if state.topCard == None:
@@ -108,11 +108,14 @@ class RLAgent(agent.Agent):
         player = state.whosTurn
 #        oldNum = state.numRemaining[player]
         newNum = nextState.numRemaining[player]
+        reward = 0
         if newNum == 0:
-            ratio = 1 /float(len(nextState.finished) + 1)
-            reward = ratio * 50
-        else:
-            reward = 0
+            if len(nextState.finished) == 0:
+                reward = 100
+            elif len(nextState.finished) == 1:
+                reward = 50
+            #ratio = 1 /float(len(nextState.finished) + 1)
+            #reward = ratio * 50
         self.update(state, act, nextState, reward) 
         return act
 
