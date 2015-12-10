@@ -1,7 +1,7 @@
 from collections import Counter
 import multiprocessing as mp
 import operator as op
-import sys, time
+import sys, time, random
 import cards, agent
 
 class ParanoidAgent(agent.Agent):
@@ -19,10 +19,9 @@ class ParanoidAgent(agent.Agent):
         # if there's only one option, just play that action
         if len(allActions) == 1:
             return allActions[0]
-
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 10
+        numTrials = 30
         # sample hands several times in parallel
         pool = mp.Pool(numTrials)
         start = time.time()
@@ -41,7 +40,7 @@ class ParanoidAgent(agent.Agent):
         start = time.time()
         args = (0, state, self.idx, self.hand)
         res, nodes = simulate(args)
-        #print res, (time.time() - start)
+        print res, nodes, (time.time() - start)
         self.nodeList.append(nodes)
         return res
         """
@@ -73,27 +72,48 @@ def paranoid (state, depth, agents, a, b):
     global nodesExpanded
     act = (0, -1)
     player = agents[state.whosTurn]
-    #nodesExpanded += 1
+    nodesExpanded += 1
     if state.isFinalState():
         # Assume all players are playing against the max agent
-        places = [5 * state.numPlayers - state.finished.index(i)
-                              for i in xrange(state.numPlayers)]
-        pl = places.pop(player.idx)
-        return ((0, -1), pl - sum(places))
+        #places = [5 * state.numPlayers - state.finished.index(i)
+        #                      for i in xrange(state.numPlayers)]
+        #pl = places.pop(player.idx)
+        heu = state.heuristic()
+            # Assume all players are playing against the max agent
+        return a, heu[0] - sum(heu[1:])
+        #return ((0, -1), pl - sum(places))
 
-    if depth > 3 * state.numPlayers: #nodesExpanded >= 500: #depth >= 2:
+    if depth > 2 * state.numPlayers: #
         bestVal = [heuristic(state, p) for p in agents]
-        playerBest = bestVal.pop(player.idx)
-        best = playerBest - sum(bestVal)
         for action in player.getAllActions(state):
             child = state.getChild(action)
             childVal = [heuristic(state, p) for p in agents]
-            cB = childVal.pop(player.idx)
-            childBest = cB - sum(childVal)
-            if childBest > best:
-                act = action
-                best = childBest
-        return act, best
+        if childVal[player.idx] > bestVal[player.idx]:
+            act = action
+            bestVal = childVal
+        return act, bestVal[0] - sum(bestVal[1:])
+        #bestVal = [heuristic(state, p) for p in agents]
+        #playerBest = bestVal.pop(player.idx)
+        #best = playerBest - sum(bestVal)
+        #print "Start"
+        #for action in player.getAllActions(state):
+        #    child = state.getChild(action)
+        #    childVal = [heuristic(state, p) for p in agents]
+        #    cB = childVal.pop(player.idx)
+        #    childBest = cB - sum(childVal)
+        #    r = random.random()
+        #    #print action, childBest, act, best
+        #    #if childBest > best:
+        #    #    act = action
+        #    #    best = childBest
+        #    #elif childBest == best and action[1] > 0:
+        #    #    if action[1] < act[1] or act[1] == -1:
+        #    #        act = action
+        #    #        best = childBest
+        #    if cB > playerBest:
+        #        playerBest = cB
+        #        act = action
+        #return act, best
 
     # The max player
     if state.whosTurn == 0:

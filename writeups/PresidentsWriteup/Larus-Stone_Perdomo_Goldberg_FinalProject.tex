@@ -46,17 +46,44 @@ Sampling based on cards that haven't been played
 
 \subsection{Paranoid}
 
-The first algorithm we implemented was a paranoid agent. The paranoid algorithm is a modified minimax algorithm which assumes that all the other players in the game are collaborating against it. This reduces the multiplayer game to a two player one in which traditional minimax can be applied. At a leaf node (a terminal state), the score is determined by 
+The first algorithm we implemented was a paranoid agent. The paranoid algorithm is a modified minimax algorithm which assumes that all the other players in the game are collaborating against it. It does this at the evaluation step, by estimating values for each of the players, then returning the max player's value minus the sum of the other players' values. This reduces the multiplayer game to a two player one in which traditional minimax can be applied.
 
-Modified minimax, where leaf/terminal nodes are a tuple of values representing the scores (or a heuristic estimate of those scores). Calculate intermediate values by subtracting all scores from first player score. Too deep to expand full game tree, so terminate at terminal node or after a certain depth or a certain number of nodes has been expanded (keep track of nodes expanded for pruning).
+The tricky part is that the game tree is so large that it's impossible to expand out the tree fully. So, we had a cutoff point for our algorithm to stop evaluating (usually 2 rounds of play). However, this means that we didn't have access to the results of the game, only what we thought the game looked like. This meant we had to use a heuristic to evaluate how good the state was for us. As we will talk about later, creating a heuristic for this game is quite difficult, but also incredibly important for the performance of these algorithms.
+
+\begin{algorithm}
+  \begin{algorithmic}
+    \Procedure{Paranoid}{state, depth, player}
+	\If{isTerminal(state) or depth $>$ MAXDEPTH}
+		\State{values = evaluate(state)}
+		\State{return values[0] - sum(values[1:])}
+	\EndIf
+	\If{isMax(player)}
+		\State{v = -$\infty$}
+	 	\For{action in LegalActions}
+	 		\State{nextState = getNextState(state, action)}
+			\State{v = max(v, paranoid(nextState, depth + 1, nextPlayer))}
+			\State{a = action if v changed}
+		\EndFor
+	\EndIf
+	\If{isMin(player)}
+		\State{v = $\infty$}
+	 	\For{action in LegalActions}
+	 		\State{nextState = getNextState(state, action)}
+			\State{v = min(v, paranoid(nextState, depth + 1, nextPlayer))}
+			\State{a = action if v changed}
+		\EndFor
+	\EndIf
+	\State{return a, v}
+    \EndProcedure{}
+  \end{algorithmic}
+  \caption{Pseudocode for Paranoid Algorithm}
+\end{algorithm}
 
 \subsubsection{Pruning}
 
-Standard a-b pruning works here
+Something that is very nice about the paranoid algorithm is that since it is so closely related to minimax, $\alpha\beta$ pruning can be built on top of it. After the paranoid evaluation, we return an action and an associated value. This means we can keep track of what we would return from the current node and prune other sibling nodes if they would ever return a value that would not replace our value. When we implemented pruning, we saw a decrease in the number of nodes expanded by the Paranoid algorithm by about 500 nodes on average. Since the Paranoid algorithm expands about 3000 nodes when MAXDEPTH is two rounds, this was a dramatic increase in speed.
 
 \subsection{Max-n}
-
-\subsection{fasdfa}
 
 \subsection{Monte Carlo Tree Search}
 
@@ -66,7 +93,6 @@ discussion of any details of the algorithm that were not in the
 published paper(s) that formed the basis of your implementation. A
 reader should be able to reconstruct and verify your work from reading
 your paper.
-
 
 
 The MCTS algorithm is divided into 4 key stages: selection, expansion, simulation, and backpropagation. In selection, a node is chosen starting from the root of the game tree by recursively selecting the most promising child node until a leaf in the tree is reached. After a node has been chosen, the game is played out using a default policy until a result is reached. Lastly, in backpropagation, the result of the playout is incorporated recursively into each node located in the path from the root to the selected child.\\
