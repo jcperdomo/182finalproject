@@ -110,7 +110,7 @@ class RLAgent(agent.Agent):
             ratio = 1 /float(len(nextState.finished))
             reward = ratio * 20
         else:
-            reward = -1
+            reward = 0
         self.update(state, act, nextState, reward) 
         return act
 
@@ -129,5 +129,4 @@ def reduceState(state):
         highest += entry[9] + entry[10] + entry[11]
         numTwos += entry[12]
         #score += (state.playedCards[0][entry] * entry)
-    return (numTwos, highest, state.numRemaining[player])
-
+    return (numTwos, state.numRemaining[player], state.numRemaining[player] - min(state.numRemaining))

@@ -22,7 +22,7 @@ class ParanoidAgent(agent.Agent):
 
         # sample opponent hands on each trial and keep track of best actions in
         # each trial
-        numTrials = 5
+        numTrials = 1
         # sample hands several times in parallel
         pool = mp.Pool(numTrials)
         start = time.time()
@@ -33,7 +33,7 @@ class ParanoidAgent(agent.Agent):
         pool.close()
         pool.join()
         allBest, nodes = max(bestActions, key=bestActions.get)
-        #print allBest, nodes, bestActions, '{} seconds'.format(time.time() - start)
+        print allBest, nodes, bestActions, '{} seconds'.format(time.time() - start)
         self.nodeList.append(nodes / float(numTrials))
         return allBest
         """
@@ -73,13 +73,13 @@ def paranoid (state, depth, agents, a, b):
     global nodesExpanded
     act = (0, -1)
     player = agents[state.whosTurn]
-    nodesExpanded += 1
+    #nodesExpanded += 1
     if state.isFinalState():
         heu = state.heuristic()
         # Assume all players are playing against the max agent
         return a, heu[0] - sum(heu[1:])
 
-    if nodesExpanded >= 500: #depth >= 2:
+    if depth > 3 * state.numPlayers: #nodesExpanded >= 500: #depth >= 2:
         bestVal = [heuristic(state, p) for p in agents]
         for action in player.getAllActions(state):
             child = state.getChild(action)
@@ -94,7 +94,7 @@ def paranoid (state, depth, agents, a, b):
         v = -(sys.maxint - 1)
         for action in player.getAllActions(state):
             nextState = state.getChild(action)
-            val = paranoid(nextState, depth, agents, a, b)[1]
+            val = paranoid(nextState, depth + 1, agents, a, b)[1]
             if val > v:
                 v = val
                 act = action
@@ -109,7 +109,7 @@ def paranoid (state, depth, agents, a, b):
             depth += 1
         for action in player.getAllActions(state):
             nextState = state.getChild(action)
-            val = paranoid(nextState, depth, agents, a, b)[1]
+            val = paranoid(nextState, depth + 1, agents, a, b)[1]
             if val < v:
                 v = val
                 act = action

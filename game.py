@@ -62,10 +62,11 @@ class Game(object):
         for i in xrange(self.numPlayers):
             self.agents[i].hand = hands[i]
         # swap cards
-        for i in xrange(2):
-            high = ordering.index(i)
-            low = ordering.index(self.numPlayers - i - 1)
-            cards.swapCards(hands[high], hands[low], 2 - i)
+        if ordering:
+            for i in xrange(2):
+                high = ordering.index(i)
+                low = ordering.index(self.numPlayers - i - 1)
+                cards.swapCards(hands[high], hands[low], 2 - i)
 
         threes = collections.Counter()
         for p, hand in enumerate(hands):
@@ -122,8 +123,8 @@ class Game(object):
 
         return results
 
-    def playMultGames(self, verbose=False, superVerbose=False, maxDepth=None, evalFunc=None, n=1):
-        """Plays n full games
+    def playMultGames(self, verbose=False, superVerbose=False, maxDepth=None, evalFunc=None, restarts=None, n=1):
+        """Plays n full games, restarting every restart games
         """
         results = []
         for i in xrange(n):
@@ -131,5 +132,8 @@ class Game(object):
            if verbose:
                print res
            results.append(res)
-           self.newGame(res)
+           if restarts and i % restarts == 0:
+               self.newGame(None)
+           else:
+               self.newGame(res)
         return results
